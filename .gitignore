@@ -27,7 +27,7 @@
 .vs/
 
 # DS Mac
-**/.DS_Store
+.DS_Store
 
 # Gradle cache directory
 .gradle/
