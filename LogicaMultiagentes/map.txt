@@ -10,11 +10,11 @@ vv####ss#####vv#vv####^^
 vve##e^^####evv#vv####^^
 vv####^^#####vv#vve###^^
 ss####^^#####vv#vv####^^
-xxs<<<xx<<<<<<<<<<<<<<xx
-xxs<<<xx<<<<<<<<<<<<<<xx
+xxs<<<xx<<<<xxx<xxx<<<xx
+xxs<<<xx<<<<xxx<xxx<<<xx
 vv##########vv###^^###^^
-xx>>>>xx>>>>>>>>>>>>>sxx
-xx>>>>xx>>>>>>>>>>>>>sxx
+xx>>>>xx>>>>xxx>xxx>>sxx
+xx>>>>xx>>>>xxx>xxx>>sxx
 vv####vv##e##vv#^^####ss
 vv####vv#####vv#^^####^^
 vv####vv#####vv#^^###e^^
