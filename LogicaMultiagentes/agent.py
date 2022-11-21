@@ -9,7 +9,7 @@ class Car(Agent):
         self.color = 'car'
 
     def step(self):
-        path = get_shortest_path(self.model, self.pos, (9, 17))
+        path = get_shortest_path(self.model, self.pos, (10, 17))
         print(path)
         if path:
             self.model.grid.move_agent(self, path[0])

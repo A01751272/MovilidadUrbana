@@ -3,19 +3,23 @@ from model import *
 
 
 def get_light_direction(model, light, direction):
-    right = model.grid.get_cell_list_contents((light[0]+1, light[1]))
-    left = model.grid.get_cell_list_contents((light[0]-1, light[1]))
-    up = model.grid.get_cell_list_contents((light[0], light[1]+1))
-    down = model.grid.get_cell_list_contents((light[0], light[1]-1))
+    dir = []
 
     if direction == "LightVer":
-        if right[-1].direction == "Intersection" and (left[-1].direction == "Right" or left[-1].direction == "Left"):
-        direction = [(light[0]+1, light[1]),
-                     (light[0]-1, light[1])]
+        right = model.grid.get_cell_list_contents((light[0]+1, light[1]))
+        left = model.grid.get_cell_list_contents((light[0]-1, light[1]))
+        if right[0].direction == "Intersection":
+            dir = [(light[0]+1, light[1])]
+        elif left[0].direction == "Intersection":
+            dir = [(light[0]-1, light[1])]
     elif direction == "LightHor":
-        direction = [(light[0], light[1]+1),
-                     (light[0], light[1]-1)]
-    return direction
+        up = model.grid.get_cell_list_contents((light[0], light[1]+1))
+        down = model.grid.get_cell_list_contents((light[0], light[1]-1))
+        if up[0].direction == "Intersection":
+            dir = [(light[0], light[1]+1)]
+        elif down[0].direction == "Intersection":
+            dir = [(light[0], light[1]-1)]
+    return dir
 
 
 def get_direction(model, current):
@@ -33,7 +37,7 @@ def get_direction(model, current):
     elif direction == "Up":
         direction = [(current[0], current[1]+1)]
     elif direction == "Down":
-        direction = [(current[0]+1, current[1]-1)]
+        direction = [(current[0], current[1]-1)]
     elif direction == "Intersection":
         direction = None
     elif direction == "LightVer" or direction == "LightHor":
@@ -101,7 +105,7 @@ def get_shortest_path(model, start, end):
             return get_nodes_in_path(came_from, current)
         # Check the neighbors of the current node and add a temporary g score
         neighbors = get_neighbors(model, current)
-        print(current, neighbors)
+        # print(current, neighbors)
         for neighbor in neighbors:
             # Check each neighbor's g score and look for the smallest one
             temp_g = g_score[current] + 1
