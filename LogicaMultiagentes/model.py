@@ -35,8 +35,9 @@ class CityModel(Model):
                                      map_dictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                     # Adds traffic light agent
-                    elif col == "s":
-                        agent = Traffic_Light(f"tl{r*self.width+c}", self)
+                    elif col in ["s", "S"]:
+                        agent = Traffic_Light(f"tl{r*self.width+c}", self,
+                                              map_dictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         self.schedule.add(agent)
                     # Adds building agent
@@ -48,6 +49,11 @@ class CityModel(Model):
                         agent = Destination(f"d{r*self.width+c}", self)
                         self.grid.place_agent(agent, (c, self.height - r - 1))
         self.running = True
+
+        # Add car (Test)
+        agent = Car(f"r{r*self.width+c}", self)
+        self.grid.place_agent(agent, (0, 0))
+        self.schedule.add(agent)
 
     def step(self):
         '''Advance the model by one step.'''

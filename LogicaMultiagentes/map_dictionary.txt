@@ -4,7 +4,8 @@
     "^": "Up",
     "v": "Down",
     "x": "Intersection",
-    "s": "Light",
+    "s": "LightVer",
+    "S": "LightHor",
     "#": "Building",
     "e": "Destination"
 }

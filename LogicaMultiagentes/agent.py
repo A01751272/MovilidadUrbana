@@ -9,18 +9,21 @@ class Car(Agent):
         self.color = 'car'
 
     def step(self):
-        pass
+        path = get_shortest_path(self.model, self.pos, (9, 17))
+        print(path)
+        if path:
+            self.model.grid.move_agent(self, path[0])
 
 
 # Traffic light agent
 class Traffic_Light(Agent):
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model, direction):
         super().__init__(unique_id, model)
-        self.state = False
+        self.direction = direction
         self.color = 'light'
+        self.state = False
 
     def step(self):
-        get_shortest_path(self.model, (0, 0), (16, 19))
         pass
 
 
