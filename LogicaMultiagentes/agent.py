@@ -1,4 +1,5 @@
 from mesa import Agent
+from astar import *
 
 
 # Car agent
@@ -19,6 +20,7 @@ class Traffic_Light(Agent):
         self.color = 'light'
 
     def step(self):
+        get_shortest_path(self.model, (0, 0), (16, 19))
         pass
 
 
