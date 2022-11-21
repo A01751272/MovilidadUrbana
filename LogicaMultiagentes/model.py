@@ -1,7 +1,7 @@
 from mesa import Model
 from mesa.time import StagedActivation
 from mesa.space import MultiGrid
-from agent import *
+from agent import Road, Traffic_Light, Building, Destination, Car
 import json
 import random
 
