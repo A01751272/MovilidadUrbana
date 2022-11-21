@@ -1,9 +1,9 @@
-
 from model import *
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 
 
+# Agent portrayal
 def agent_portrayal(agent):
     portrayal = {"Shape": "circle",
                  "Filled": "true",
@@ -26,16 +26,15 @@ def agent_portrayal(agent):
     return portrayal
 
 
+# Get width and height from map (TODO change route)
 with open('LogicaMultiagentes/map.txt') as map_file:
     lines = map_file.readlines()
     width = len(lines[0])-1
     height = len(lines)
 
-N = 30
 grid = CanvasGrid(agent_portrayal, width, height, 750, 750)
 server = ModularServer(CityModel,
                        [grid],
-                       "City Model",
-                       {"N": N})
+                       "City Model")
 server.port = 8521
 server.launch()

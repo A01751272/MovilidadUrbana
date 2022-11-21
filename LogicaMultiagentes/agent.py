@@ -1,6 +1,7 @@
 from mesa import Agent
 
 
+# Car agent
 class Car(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -10,6 +11,7 @@ class Car(Agent):
         pass
 
 
+# Traffic light agent
 class Traffic_Light(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -20,6 +22,7 @@ class Traffic_Light(Agent):
         pass
 
 
+# Destination agent
 class Destination(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -29,6 +32,7 @@ class Destination(Agent):
         pass
 
 
+# Building agent
 class Building(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -38,6 +42,7 @@ class Building(Agent):
         pass
 
 
+# Road agent
 class Road(Agent):
     def __init__(self, unique_id, model, direction):
         super().__init__(unique_id, model)
