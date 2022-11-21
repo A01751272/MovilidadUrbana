@@ -1,0 +1,10 @@
+{
+    ">": "Right",
+    "<": "Left",
+    "^": "Up",
+    "v": "Down",
+    "x": "Intersection",
+    "s": "Light",
+    "#": "Building",
+    "e": "Destination"
+}
