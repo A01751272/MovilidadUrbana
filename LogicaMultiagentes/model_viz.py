@@ -11,27 +11,31 @@ def agent_portrayal(agent):
                  "Color": "red",
                  "r": 0.5}
 
-    if agent.color == 'car':
+    # Colors agents based on types
+    if agent.type == 'car':
         portrayal["Color"] = "red"
-    elif agent.color == 'road':
+    elif agent.type == 'road':
         portrayal["Color"] = "grey"
         portrayal["r"] = 0.1
-    elif agent.color == 'light':
-        portrayal["Color"] = "green"
-    elif agent.color == 'park':
+    elif agent.type == 'light':
+        if agent.state:
+            portrayal["Color"] = "green"
+        else:
+            portrayal["Color"] = "red"
+    elif agent.type == 'parking':
         portrayal["Color"] = "blue"
-    elif agent.color == 'building':
+    elif agent.type == 'building':
         portrayal["Color"] = "grey"
-
     return portrayal
 
 
-# Get width and height from map (TODO change route)
+# Get width and height from map
 with open('LogicaMultiagentes/map.txt') as map_file:
     lines = map_file.readlines()
     width = len(lines[0])-1
     height = len(lines)
 
+# Run model
 grid = CanvasGrid(agent_portrayal, width, height, 750, 750)
 server = ModularServer(CityModel,
                        [grid],

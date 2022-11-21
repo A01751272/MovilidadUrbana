@@ -1,17 +1,20 @@
 from mesa import Agent
-from astar import *
+from astar import Astar
 
 
 # Car agent
 class Car(Agent):
     def __init__(self, unique_id, model, destination):
         super().__init__(unique_id, model)
-        self.color = 'car'
+        self.type = 'car'
         self.destination = destination
 
     def step(self):
-        path = get_shortest_path(self.model, self.pos, self.destination)
+        # Get shortest path to destination
+        astar = Astar(self.model, self.pos, self.destination)
+        path = astar.get_shortest_path()
         if path:
+            # Move agent to next neighbor
             self.model.grid.move_agent(self, path[0])
 
 
@@ -19,9 +22,10 @@ class Car(Agent):
 class Traffic_Light(Agent):
     def __init__(self, unique_id, model, direction):
         super().__init__(unique_id, model)
+        self.type = 'light'
         self.direction = direction
-        self.color = 'light'
-        self.state = False
+        # If it is green or red
+        self.state = True
 
     def step(self):
         pass
@@ -31,7 +35,7 @@ class Traffic_Light(Agent):
 class Destination(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
-        self.color = 'park'
+        self.type = 'parking'
 
     def step(self):
         pass
@@ -41,7 +45,7 @@ class Destination(Agent):
 class Building(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
-        self.color = 'building'
+        self.type = 'building'
 
     def step(self):
         pass
@@ -51,8 +55,8 @@ class Building(Agent):
 class Road(Agent):
     def __init__(self, unique_id, model, direction):
         super().__init__(unique_id, model)
+        self.type = 'road'
         self.direction = direction
-        self.color = 'road'
 
     def step(self):
         pass
