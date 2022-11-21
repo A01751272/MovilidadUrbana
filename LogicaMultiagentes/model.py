@@ -3,6 +3,7 @@ from mesa.time import StagedActivation
 from mesa.space import MultiGrid
 from agent import *
 import json
+import random
 
 
 # City model
@@ -12,6 +13,8 @@ class CityModel(Model):
         map_dictionry_file = 'LogicaMultiagentes/map_dictionary.txt'
         # Reads the dictionary of agent terms
         map_dictionary = json.load(open(map_dictionry_file))
+        # List of available spawn/destination points
+        parking_coords = []
 
         # TODO change route
         map_file = 'LogicaMultiagentes/map.txt'
@@ -48,11 +51,16 @@ class CityModel(Model):
                     elif col == "e":
                         agent = Destination(f"d{r*self.width+c}", self)
                         self.grid.place_agent(agent, (c, self.height - r - 1))
+                        parking_coords.append((c, self.height - r - 1))
         self.running = True
 
         # Add car (Test)
-        agent = Car(f"r{r*self.width+c}", self)
-        self.grid.place_agent(agent, (0, 0))
+        fin = random.choice(parking_coords)
+        start = random.choice(parking_coords)
+        agent = Car(f"r{r*self.width+c}", self, fin)
+        while start == fin:
+            start = random.choice(parking_coords)
+        self.grid.place_agent(agent, start)
         self.schedule.add(agent)
 
     def step(self):

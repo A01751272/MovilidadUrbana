@@ -4,13 +4,13 @@ from astar import *
 
 # Car agent
 class Car(Agent):
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model, destination):
         super().__init__(unique_id, model)
         self.color = 'car'
+        self.destination = destination
 
     def step(self):
-        path = get_shortest_path(self.model, self.pos, (10, 17))
-        print(path)
+        path = get_shortest_path(self.model, self.pos, self.destination)
         if path:
             self.model.grid.move_agent(self, path[0])
 

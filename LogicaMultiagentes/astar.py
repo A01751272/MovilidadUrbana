@@ -45,7 +45,7 @@ def get_direction(model, current):
     return direction
 
 
-def get_neighbors(model, current):
+def get_neighbors(model, current, end):
     available_neighbors = []
     direction = get_direction(model, current)
     neighbors = model.grid.get_neighborhood(
@@ -55,6 +55,8 @@ def get_neighbors(model, current):
     for neighbor in neighbors:
         content = model.grid.get_cell_list_contents(neighbor)
         for agent in content:
+            if agent.color == 'park' and neighbor == end:
+                return [neighbor]
             if agent.color in ['light', 'road']:
                 if not direction:
                     available_neighbors.append(neighbor)
@@ -69,7 +71,6 @@ def get_nodes_in_path(came_from, current):
         path.append((current[0], current[1]))
         current = came_from[current]
     path.reverse()
-    print(path)
     return path
 
 
@@ -104,18 +105,19 @@ def get_shortest_path(model, start, end):
         if current == end:
             return get_nodes_in_path(came_from, current)
         # Check the neighbors of the current node and add a temporary g score
-        neighbors = get_neighbors(model, current)
-        # print(current, neighbors)
+        neighbors = get_neighbors(model, current, end)
         for neighbor in neighbors:
             # Check each neighbor's g score and look for the smallest one
             temp_g = g_score[current] + 1
             if temp_g < g_score[neighbor]:
-                # Tell program that the current path comes from the current node
+                # Tell program that the current path comes
+                # from the current node
                 came_from[neighbor] = current
                 # Set the neighbor's g score the new g score
                 g_score[neighbor] = temp_g
                 f_score[neighbor] = temp_g + manhattan_distance(neighbor, end)
-                # If neighbor has not been visited, change it's state and add it to the priority queue
+                # If neighbor has not been visited, change it's state and
+                # add it to the priority queue
                 if neighbor not in open_set_hash:
                     count += 1
                     open_set.put((f_score[neighbor], count, neighbor))
