@@ -19,6 +19,7 @@ class CityModel(Model):
         self.parking_coords = []
         map_file = 'LogicaMultiagentes/map.txt'
         self.reserved_cells = {}
+        self.add_car_every = cars_every
 
         # Reads the map
         with open(map_file) as map_file:
@@ -57,7 +58,7 @@ class CityModel(Model):
                         self.parking_coords.append((c, self.height - r - 1))
                     self.unique_id += 1
 
-        for _ in range(10):
+        for _ in range(initial_cars):
             self.add_car()
 
         # TEST
@@ -125,7 +126,7 @@ class CityModel(Model):
     def step(self):
         '''Advance the model by one step.'''
         # Adds car every 10 seconds
-        if self.num_steps % 1 == 0:
+        if self.num_steps % self.add_car_every == 0:
             self.add_car()
         self.num_steps += 1
         self.reserved_cells = {}
