@@ -72,7 +72,6 @@ class Car(Agent):
                     return True
         return False
 
-
     def step(self):
         """First step in schedule."""
         # If it has just appeared, wait 1 step
@@ -84,7 +83,7 @@ class Car(Agent):
                 self.model.grid.remove_agent(self)
                 self.model.schedule.remove(self)
             else:
-                print(self.unique_id, path[0], self.destination)
+                # print(self.unique_id, path[0], self.destination)
                 self.__give_priority()
                 self.__can_move(path[0])
 

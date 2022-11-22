@@ -10,7 +10,7 @@ from agent import Road, Traffic_Light, Building, Destination, Car
 # City model
 class CityModel(Model):
     # Initialize variables
-    def __init__(self):
+    def __init__(self, initial_cars, cars_every):
         """Initialize model."""
         self.running = True
         self.num_steps = 0
