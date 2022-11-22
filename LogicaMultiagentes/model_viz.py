@@ -5,6 +5,7 @@ from mesa.visualization.ModularVisualization import ModularServer
 
 # Agent portrayal
 def agent_portrayal(agent):
+    """Styles agents in grid."""
     portrayal = {"Shape": "circle",
                  "Filled": "true",
                  "Layer": 0,
@@ -13,12 +14,13 @@ def agent_portrayal(agent):
 
     # Colors agents based on types
     if agent.type == 'car':
-        portrayal["Color"] = "red"
+        portrayal["Color"] = "purple"
         portrayal["text"] = agent.unique_id
     elif agent.type == 'road':
         portrayal["Color"] = "grey"
         portrayal["r"] = 0.1
     elif agent.type == 'light':
+        # Check whether traffic light is red or green
         if agent.state:
             portrayal["Color"] = "green"
         else:
