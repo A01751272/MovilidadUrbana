@@ -1,6 +1,7 @@
 from mesa import Model
 from mesa.time import StagedActivation
 from mesa.space import MultiGrid
+from astar import Astar
 from agent import Road, Traffic_Light, Building, Destination, Car
 import json
 import random
@@ -21,6 +22,9 @@ class CityModel(Model):
         self.parking_coords = []
         # Declares map route
         map_file = 'LogicaMultiagentes/map.txt'
+        # Reserved cells
+        self.reserved_cells = {}
+        self.car_occupied = {}
 
         # Reads the map
         with open(map_file) as map_file:
@@ -30,7 +34,7 @@ class CityModel(Model):
             self.height = len(lines)
             # Creates grid and scheduler
             self.grid = MultiGrid(self.width, self.height, torus=False)
-            self.schedule = StagedActivation(self, ['step'])
+            self.schedule = StagedActivation(self, ['step', 'step2', 'step3'])
 
             self.unique_id = 0
             # Adds agents to grid
@@ -59,20 +63,58 @@ class CityModel(Model):
                     self.unique_id += 1
 
         # Add initial cars
-        for _ in range(5):
-            self.add_car()
+        # for _ in range(5):
+        #     self.add_car()
+
+        # Coche manejando (Test)
+        # agent = Car(f"c{1001}", self, (18, 20))
+        # agent.priority = 1
+        # agent.cant_move = False
+        # self.grid.place_agent(agent, (17, 9))
+        # self.schedule.add(agent)
+        # Segundo coche manejando (Test)
+        # agent = Car(f"c{1002}", self, (18, 20))
+        # agent.priority = 1
+        # agent.cant_move = False
+        # self.grid.place_agent(agent, (17, 8))
+        # self.schedule.add(agent)
+
+    def is_there_a_car(self, cell):
+        if cell.type == 'car':
+            return True
+        return False
 
     # Adds a agent car to grid and schedule
     def add_car(self):
         # Adds car agent
         destination = random.choice(self.parking_coords)
-        # Defines where it starts
-        start = random.choice(self.parking_coords)
         # Defines its destination
         agent = Car(f"c{self.unique_id}", self, destination)
         # While they are the same
-        while start == destination:
+        allowed = False
+        while not allowed:
+            temp_allowed = []
+            # Defines where it starts
             start = random.choice(self.parking_coords)
+            print(start)
+            if start != destination:
+                # Can't appear if there is a car in next_cell
+                astar = Astar(self, start, destination)
+                path = astar.get_shortest_path()
+                if path:
+                    content = self.grid.get_cell_list_contents(path[0])
+                    for a in content:
+                        if self.is_there_a_car(a):
+                            temp_allowed.append(True)
+
+                # Can't appear if there is a car in the parking
+                content = self.grid.get_cell_list_contents(start)
+                for a in content:
+                    if self.is_there_a_car(a):
+                        temp_allowed.append(True)
+            if len(temp_allowed) == 0:
+                allowed = True
+
         # Adds agent to grid
         self.grid.place_agent(agent, start)
         self.schedule.add(agent)
@@ -82,6 +124,11 @@ class CityModel(Model):
         # Adds car every 10 seconds
         if self.num_steps % 10 == 0:
             self.add_car()
+        # Carro sale (Test)
+        elif self.num_steps == 3:
+            agent = Car(f"c{1000}", self, (18, 20))
+            self.grid.place_agent(agent, (18, 14))
+            self.schedule.add(agent)
         '''Advance the model by one step.'''
         self.num_steps += 1
         self.schedule.step()

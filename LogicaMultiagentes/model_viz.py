@@ -14,6 +14,7 @@ def agent_portrayal(agent):
     # Colors agents based on types
     if agent.type == 'car':
         portrayal["Color"] = "red"
+        portrayal["text"] = agent.unique_id
     elif agent.type == 'road':
         portrayal["Color"] = "grey"
         portrayal["r"] = 0.1
