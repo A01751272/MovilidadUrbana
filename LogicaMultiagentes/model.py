@@ -10,7 +10,7 @@ from agent import Road, Traffic_Light, Building, Destination, Car
 # City model
 class CityModel(Model):
     # Initialize variables
-    def __init__(self):
+    def __init__(self, initial_cars, cars_every):
         """Initialize model."""
         self.running = True
         self.num_steps = 0
@@ -19,6 +19,7 @@ class CityModel(Model):
         self.parking_coords = []
         map_file = 'LogicaMultiagentes/map.txt'
         self.reserved_cells = {}
+        self.add_car_every = cars_every
 
         # Reads the map
         with open(map_file) as map_file:
@@ -57,6 +58,13 @@ class CityModel(Model):
                         self.parking_coords.append((c, self.height - r - 1))
                     self.unique_id += 1
 
+        for _ in range(initial_cars):
+            self.add_car()
+
+        # TEST
+        self.couldnt_move = {}
+        self.couldnt_move_ids = {}
+
     def __car_in_cell(self, cell):
         """Checks if there is a car in a certain cell."""
         content = self.grid.get_cell_list_contents(cell)
@@ -65,6 +73,28 @@ class CityModel(Model):
             if a.type == 'car':
                 return True
         return False
+
+    def __check_previous_cell(self, path, start):
+        """Check if there is a car in previous cell"""
+        previous_cell = None
+        begin = path[0]
+        next = path[1]
+        # Checks what direction does agent move
+        if next[0] > begin[0]:
+            previous_cell = (begin[0]-1, begin[1])
+        elif next[0] < begin[0]:
+            previous_cell = (begin[0]+1, begin[1])
+        elif next[1] > begin[1]:
+            previous_cell = (begin[0], begin[1]-1)
+        elif next[1] < begin[1]:
+            previous_cell = (begin[0], begin[1]+1)
+        content = self.grid.get_cell_list_contents(previous_cell)
+        for a in content:
+            # Can't appear if there is a car in previous cell
+            if a.type == 'car':
+                if a.destination == start:
+                    return False
+        return True
 
     # Adds a agent car to grid and schedule
     def add_car(self):
@@ -84,7 +114,8 @@ class CityModel(Model):
                 # If there is a path
                 if path:
                     if not self.__car_in_cell(path[0]) and \
-                            not self.__car_in_cell(start):
+                            not self.__car_in_cell(start) and \
+                            self.__check_previous_cell(path, start):
                         allowed = True
 
         # Adds agent to grid and schedule
@@ -95,8 +126,10 @@ class CityModel(Model):
     def step(self):
         '''Advance the model by one step.'''
         # Adds car every 10 seconds
-        if self.num_steps % 5 == 0:
+        if self.num_steps % self.add_car_every == 0:
             self.add_car()
         self.num_steps += 1
         self.reserved_cells = {}
+        self.couldnt_move = {}
+        self.couldnt_move_ids = {}
         self.schedule.step()
