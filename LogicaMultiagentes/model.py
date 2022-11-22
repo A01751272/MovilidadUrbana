@@ -1,43 +1,102 @@
 from mesa import Model
 from mesa.time import StagedActivation
 from mesa.space import MultiGrid
-from agent import *
 import json
+import random
+from astar import Astar
+from agent import Road, Traffic_Light, Building, Destination, Car
 
 
+# City model
 class CityModel(Model):
-    def __init__(self, N):
-        map_dictionary = json.load(open('LogicaMultiagentes/\
-            map_dictionary.txt'))
+    # Initialize variables
+    def __init__(self):
+        """Initialize model."""
+        self.running = True
+        self.num_steps = 0
+        map_dictionary_file = 'LogicaMultiagentes/map_dictionary.txt'
+        map_dictionary = json.load(open(map_dictionary_file))
+        self.parking_coords = []
+        map_file = 'LogicaMultiagentes/map.txt'
+        self.reserved_cells = {}
 
-        with open('LogicaMultiagentes/map.txt') as map_file:
+        # Reads the map
+        with open(map_file) as map_file:
             lines = map_file.readlines()
             self.width = len(lines[0])-1
             self.height = len(lines)
-
             self.grid = MultiGrid(self.width, self.height, torus=False)
-            self.schedule = StagedActivation(self, ['step'])
+            self.schedule = StagedActivation(self, ['step', 'step2', 'step3'])
+            self.unique_id = 0
 
+            # Adds agents to grid
+            # For every row
             for r, row in enumerate(lines):
+                # For every column
                 for c, col in enumerate(row):
+                    # Adds road agent
                     if col in ["v", "^", ">", "<", "x"]:
-                        agent = Road(f"r{r*self.width+c}", self,
+                        agent = Road(f"r{self.unique_id}", self,
                                      map_dictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
-                    elif col == "s":
-                        agent = Traffic_Light(f"tl{r*self.width+c}", self)
+                    # Adds traffic light agent
+                    elif col in ["s", "S"]:
+                        agent = Traffic_Light(f"t{self.unique_id}", self,
+                                              map_dictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
+                        # Add agent to scheduler
                         self.schedule.add(agent)
+                    # Adds building agent
                     elif col == "#":
-                        agent = Building(f"ob{r*self.width+c}", self)
+                        agent = Building(f"b{self.unique_id}", self)
                         self.grid.place_agent(agent, (c, self.height - r - 1))
+                    # Adds destination agent
                     elif col == "e":
-                        agent = Destination(f"d{r*self.width+c}", self)
+                        agent = Destination(f"d{self.unique_id}", self)
                         self.grid.place_agent(agent, (c, self.height - r - 1))
+                        self.parking_coords.append((c, self.height - r - 1))
+                    self.unique_id += 1
 
-        self.num_agents = N
-        self.running = True
+    def __car_in_cell(self, cell):
+        """Checks if there is a car in a certain cell."""
+        content = self.grid.get_cell_list_contents(cell)
+        for a in content:
+            # Can't appear if there is a car in the parking
+            if a.type == 'car':
+                return True
+        return False
+
+    # Adds a agent car to grid and schedule
+    def add_car(self):
+        """Adds car to grid and schedule."""
+        destination = random.choice(self.parking_coords)
+        agent = Car(f"c{self.unique_id}", self, destination)
+        allowed = False
+
+        # While it isn't allowed to be placed in start parking
+        while not allowed:
+            start = random.choice(self.parking_coords)
+
+            # If start parking is different from destination
+            if start != destination:
+                astar = Astar(self, start, destination)
+                path = astar.get_shortest_path()
+                # If there is a path
+                if path:
+                    if not self.__car_in_cell(path[0]) and \
+                            not self.__car_in_cell(start):
+                        allowed = True
+
+        # Adds agent to grid and schedule
+        self.grid.place_agent(agent, start)
+        self.schedule.add(agent)
+        self.unique_id += 1
 
     def step(self):
         '''Advance the model by one step.'''
+        # Adds car every 10 seconds
+        if self.num_steps % 5 == 0:
+            self.add_car()
+        self.num_steps += 1
+        self.reserved_cells = {}
         self.schedule.step()

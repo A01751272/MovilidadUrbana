@@ -1,10 +1,11 @@
 {
-    ">": "Right",
-    "<": "Left",
-    "^": "Up",
-    "v": "Down",
-    "x": "Intersection",
-    "s": "Light",
-    "#": "Building",
-    "e": "Destination"
+    ">": "right",
+    "<": "left",
+    "^": "up",
+    "v": "down",
+    "x": "intersection",
+    "s": "light_vertical",
+    "S": "light_horizontal",
+    "#": "building",
+    "e": "destination"
 }
