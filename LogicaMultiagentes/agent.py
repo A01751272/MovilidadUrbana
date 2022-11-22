@@ -56,6 +56,23 @@ class Car(Agent):
                 priority = 1
         self.priority = priority
 
+    def __get_out_of_path(self, path):
+        neighbors = self.model.grid.get_neighborhood(
+            self.pos,
+            moore=False,
+            include_center=False)
+        for neighbor in neighbors:
+            content = self.model.grid.get_cell_list_contents(neighbor)
+            for a in content:
+                if a.type == 'car':
+                    break
+            else:
+                if neighbor != path:
+                    self.model.grid.move_agent(self, neighbor)
+                    return True
+        return False
+
+
     def step(self):
         """First step in schedule."""
         # If it has just appeared, wait 1 step
@@ -84,6 +101,9 @@ class Car(Agent):
                 # If there isn't a car in next cell
                 if not is_there_a_car:
                     next_move = next_cell
+                else:
+                    self.model.couldnt_move[self.pos] = next_cell
+                    self.model.couldnt_move_ids[self.unique_id] = self.pos
             else:
                 # If you have the highest priority
                 if self.priority >= max(priorities):
@@ -92,9 +112,25 @@ class Car(Agent):
                         next_move = next_cell
                         self.model.reserved_cells[next_cell].append(
                             max(priorities) + 1)
+                    else:
+                        self.model.couldnt_move[self.pos] = next_cell
+                        self.model.couldnt_move_ids[self.unique_id] = self.pos
+                else:
+                    pass
+                    # self.model.couldnt_move[self.pos] = next_cell
+                    # self.model.couldnt_move_ids[self.unique_id] = self.pos
+
         self.model.grid.move_agent(self, next_move)
 
     def step3(self):
+        if self.unique_id in self.model.couldnt_move_ids:
+            astar = Astar(self.model, self.pos, self.destination)
+            path = astar.get_shortest_path()
+            if path:
+                if path[0] in self.model.couldnt_move:
+                    if self.model.couldnt_move[path[0]] == self.pos:
+                        if self.__get_out_of_path(path[0]):
+                            del self.model.couldnt_move[path[0]]
         """Third step in schedule."""
         self.cant_move = False
 

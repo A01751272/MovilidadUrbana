@@ -60,6 +60,10 @@ class CityModel(Model):
         for _ in range(10):
             self.add_car()
 
+        # TEST
+        self.couldnt_move = {}
+        self.couldnt_move_ids = {}
+
     def __car_in_cell(self, cell):
         """Checks if there is a car in a certain cell."""
         content = self.grid.get_cell_list_contents(cell)
@@ -70,9 +74,11 @@ class CityModel(Model):
         return False
 
     def __check_previous_cell(self, path, start):
+        """Check if there is a car in previous cell"""
         previous_cell = None
         begin = path[0]
         next = path[1]
+        # Checks what direction does agent move
         if next[0] > begin[0]:
             previous_cell = (begin[0]-1, begin[1])
         elif next[0] < begin[0]:
@@ -83,7 +89,7 @@ class CityModel(Model):
             previous_cell = (begin[0], begin[1]+1)
         content = self.grid.get_cell_list_contents(previous_cell)
         for a in content:
-            # Can't appear if there is a car in the parking
+            # Can't appear if there is a car in previous cell
             if a.type == 'car':
                 if a.destination == start:
                     return False
@@ -123,4 +129,6 @@ class CityModel(Model):
             self.add_car()
         self.num_steps += 1
         self.reserved_cells = {}
+        self.couldnt_move = {}
+        self.couldnt_move_ids = {}
         self.schedule.step()
