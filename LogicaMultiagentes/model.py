@@ -57,6 +57,9 @@ class CityModel(Model):
                         self.parking_coords.append((c, self.height - r - 1))
                     self.unique_id += 1
 
+        for _ in range(10):
+            self.add_car()
+
     def __car_in_cell(self, cell):
         """Checks if there is a car in a certain cell."""
         content = self.grid.get_cell_list_contents(cell)
@@ -65,6 +68,26 @@ class CityModel(Model):
             if a.type == 'car':
                 return True
         return False
+
+    def __check_previous_cell(self, path, start):
+        previous_cell = None
+        begin = path[0]
+        next = path[1]
+        if next[0] > begin[0]:
+            previous_cell = (begin[0]-1, begin[1])
+        elif next[0] < begin[0]:
+            previous_cell = (begin[0]+1, begin[1])
+        elif next[1] > begin[1]:
+            previous_cell = (begin[0], begin[1]-1)
+        elif next[1] < begin[1]:
+            previous_cell = (begin[0], begin[1]+1)
+        content = self.grid.get_cell_list_contents(previous_cell)
+        for a in content:
+            # Can't appear if there is a car in the parking
+            if a.type == 'car':
+                if a.destination == start:
+                    return False
+        return True
 
     # Adds a agent car to grid and schedule
     def add_car(self):
@@ -84,7 +107,8 @@ class CityModel(Model):
                 # If there is a path
                 if path:
                     if not self.__car_in_cell(path[0]) and \
-                            not self.__car_in_cell(start):
+                            not self.__car_in_cell(start) and \
+                            self.__check_previous_cell(path, start):
                         allowed = True
 
         # Adds agent to grid and schedule
@@ -95,7 +119,7 @@ class CityModel(Model):
     def step(self):
         '''Advance the model by one step.'''
         # Adds car every 10 seconds
-        if self.num_steps % 5 == 0:
+        if self.num_steps % 1 == 0:
             self.add_car()
         self.num_steps += 1
         self.reserved_cells = {}

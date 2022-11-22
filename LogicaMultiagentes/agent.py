@@ -67,6 +67,7 @@ class Car(Agent):
                 self.model.grid.remove_agent(self)
                 self.model.schedule.remove(self)
             else:
+                print(self.unique_id, path[0], self.destination)
                 self.__give_priority()
                 self.__can_move(path[0])
 
