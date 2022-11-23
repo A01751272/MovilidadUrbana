@@ -8,6 +8,7 @@ public class MakeCity : MonoBehaviour
     [SerializeField] GameObject roadPrefab;
     [SerializeField] GameObject curvePrefab;
     [SerializeField] GameObject crossPrefab;
+    [SerializeField] GameObject emptyPrefab;
     [SerializeField] GameObject buildingPrefab;
     [SerializeField] GameObject semaphorePrefab;
     [SerializeField] GameObject parkingPrefab;
@@ -79,6 +80,8 @@ void MakeTiles(string tiles)
                 x += 1;
             } else if (tiles[i] == '#') {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
+                tile = Instantiate(emptyPrefab, position, Quaternion.Euler(0, 0, 0));
+                tile.transform.parent = transform;
                 tile = Instantiate(buildingPrefab, position, buildingPrefab.transform.rotation); //Quaternion.identity);
                 // tile.transform.localScale = new Vector3(1, Random.Range(0.5f, 2.0f), 1);
                 tile.transform.parent = transform;
