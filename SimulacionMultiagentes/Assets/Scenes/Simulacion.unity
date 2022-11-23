@@ -251,9 +251,9 @@ MonoBehaviour:
   curvePrefab: {fileID: 6037504093126236058, guid: 09f63c78f49298840baccb006fdcb672, type: 3}
   crossPrefab: {fileID: 6694245156461060606, guid: a011c3b3407fbcd4ba804e9f26221d66, type: 3}
   emptyPrefab: {fileID: 9212557708538103259, guid: d284c29096ca8664796a6776edf1393c, type: 3}
-  buildingPrefab: {fileID: 6772370657398058760, guid: 22ec448540cad491ca8c88a132058617, type: 3}
+  buildingPrefab: {fileID: 5571136947196047997, guid: 15bd20bc551ff44dc9ca3e35be3193c2, type: 3}
   semaphorePrefab: {fileID: 7555692733908158056, guid: 236c9fec737b74c27ad51bee2509778a, type: 3}
-  parkingPrefab: {fileID: 5156010006555125719, guid: fed6d36b21681334a94df6fc706629e8, type: 3}
+  parkingPrefab: {fileID: 8293396879526225298, guid: 2d72e1ce4efc76141996eecdb819f5b8, type: 3}
   tileSize: 1
 --- !u!4 &1540231834
 Transform:
@@ -346,14 +346,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1584747384}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 12, y: 20, z: 11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1601413154
 GameObject:
   m_ObjectHideFlags: 0
