@@ -110,7 +110,7 @@ class CityModel(Model):
             # If start parking is different from destination
             if start != destination:
                 astar = Astar(self, start, destination)
-                path = astar.get_shortest_path()
+                path = astar.get_path()
                 # If there is a path
                 if path:
                     if not self.__car_in_cell(path[0]) and \

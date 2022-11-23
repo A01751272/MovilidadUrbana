@@ -77,7 +77,7 @@ class Car(Agent):
         # If it has just appeared, wait 1 step
         if not self.cant_move:
             astar = Astar(self.model, self.pos, self.destination)
-            path = astar.get_shortest_path()
+            path = astar.get_path()
             # Delete agent if it has reached his destination
             if not path:
                 self.model.grid.remove_agent(self)
@@ -124,7 +124,7 @@ class Car(Agent):
     def step3(self):
         if self.unique_id in self.model.couldnt_move_ids:
             astar = Astar(self.model, self.pos, self.destination)
-            path = astar.get_shortest_path()
+            path = astar.get_path()
             if path:
                 if path[0] in self.model.couldnt_move:
                     if self.model.couldnt_move[path[0]] == self.pos:
