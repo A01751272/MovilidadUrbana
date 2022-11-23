@@ -83,7 +83,7 @@ void MakeTiles(string tiles)
                 tile = Instantiate(emptyPrefab, position, Quaternion.Euler(0, 0, 0));
                 tile.transform.parent = transform;
                 tile = Instantiate(buildingPrefab, position, buildingPrefab.transform.rotation); //Quaternion.identity);
-                // tile.transform.localScale = new Vector3(1, Random.Range(0.5f, 2.0f), 1);
+                //tile.transform.localScale = new Vector3(0.3f, Random.Range(0.07f, 0.2f), 0.3f);
                 tile.transform.parent = transform;
                 x += 1;
             } else if (tiles[i] == '\n') {
