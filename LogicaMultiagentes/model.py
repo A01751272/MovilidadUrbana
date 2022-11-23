@@ -30,6 +30,7 @@ class CityModel(Model):
             self.schedule = StagedActivation(self, ['step', 'step2', 'step3'])
             self.unique_id = 0
 
+            lights_positions = []
             # Adds agents to grid
             # For every row
             for r, row in enumerate(lines):
@@ -46,7 +47,8 @@ class CityModel(Model):
                                               map_dictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         # Add agent to scheduler
-                        self.schedule.add(agent)
+                        lights_positions.append(agent)
+                        # self.schedule.add(agent)
                     # Adds building agent
                     elif col == "#":
                         agent = Building(f"b{self.unique_id}", self)
@@ -60,6 +62,9 @@ class CityModel(Model):
 
         for _ in range(initial_cars):
             self.add_car()
+
+        for a in lights_positions:
+            self.schedule.add(a)
 
         # TEST
         self.couldnt_move = {}

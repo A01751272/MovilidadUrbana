@@ -27,6 +27,7 @@ def agent_portrayal(agent):
             portrayal["Color"] = "red"
     elif agent.type == 'parking':
         portrayal["Color"] = "blue"
+        portrayal["text"] = agent.unique_id
     elif agent.type == 'building':
         portrayal["Color"] = "grey"
     return portrayal
