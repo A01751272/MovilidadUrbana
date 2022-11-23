@@ -428,4 +428,4 @@ MonoBehaviour:
   layout: {fileID: 4900000, guid: 58be91d437a85d64fabac98a2cc5ac33, type: 3}
   roadPrefab: {fileID: 2412528632831811625, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
   semaphorePrefab: {fileID: 7555692733908158056, guid: 236c9fec737b74c27ad51bee2509778a, type: 3}
-  tileSize: 2
+  tileSize: 1
