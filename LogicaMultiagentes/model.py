@@ -63,7 +63,27 @@ class CityModel(Model):
         for _ in range(initial_cars):
             self.add_car()
 
+        lights_pairs = {}
+        count = 0
+        while count < len(lights_positions):
+            if count >= len(lights_positions) - 4 and \
+                    count <= len(lights_positions) - 3:
+                lights_pairs[lights_positions[count].pos] = \
+                    lights_positions[count + 2].pos
+                lights_pairs[lights_positions[count + 2].pos] = \
+                    lights_positions[count].pos
+                count += 1
+            elif count < len(lights_positions) - 3:
+                lights_pairs[lights_positions[count].pos] = \
+                    lights_positions[count + 1].pos
+                lights_pairs[lights_positions[count + 1].pos] = \
+                    lights_positions[count].pos
+                count += 2
+            else:
+                count += 4
+
         for a in lights_positions:
+            a.pair = lights_pairs[a.pos]
             self.schedule.add(a)
 
         # TEST
