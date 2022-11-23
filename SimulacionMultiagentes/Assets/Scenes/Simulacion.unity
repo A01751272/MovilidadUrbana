@@ -241,15 +241,18 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1540231832}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f61f2df781045c46a087360e02dd1c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   layout: {fileID: 4900000, guid: 58be91d437a85d64fabac98a2cc5ac33, type: 3}
   roadPrefab: {fileID: 2412528632831811625, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
-  buildingPrefab: {fileID: 5156010006555125719, guid: fed6d36b21681334a94df6fc706629e8, type: 3}
+  curvePrefab: {fileID: 0}
+  crossPrefab: {fileID: 0}
+  buildingPrefab: {fileID: 6884894847764349474, guid: 0f51ab990ffa949258955a2043c57e8e, type: 3}
   semaphorePrefab: {fileID: 7555692733908158056, guid: 236c9fec737b74c27ad51bee2509778a, type: 3}
+  parkingPrefab: {fileID: 5156010006555125719, guid: fed6d36b21681334a94df6fc706629e8, type: 3}
   tileSize: 1
 --- !u!4 &1540231834
 Transform:
@@ -264,7 +267,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1584747384
 GameObject:
@@ -381,51 +384,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1836135549
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1836135551}
-  - component: {fileID: 1836135552}
-  m_Layer: 0
-  m_Name: MakeCity
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1836135551
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1836135549}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1836135552
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1836135549}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2138ae82621cea140a148596f1b38629, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  layout: {fileID: 4900000, guid: 58be91d437a85d64fabac98a2cc5ac33, type: 3}
-  roadPrefab: {fileID: 2412528632831811625, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
-  semaphorePrefab: {fileID: 7555692733908158056, guid: 236c9fec737b74c27ad51bee2509778a, type: 3}
-  tileSize: 1
