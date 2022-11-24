@@ -83,7 +83,6 @@ class Car(Agent):
                 self.model.grid.remove_agent(self)
                 self.model.schedule.remove(self)
             else:
-                # print(self.unique_id, path[0], self.destination)
                 self.__give_priority()
                 self.__can_move(path[0])
 
@@ -141,11 +140,71 @@ class Traffic_Light(Agent):
         super().__init__(unique_id, model)
         self.type = 'light'
         self.direction = direction
+        self.num_cars = 0
+        self.pair = None
+        self.quadrant = None
         # TODO (Decide if it is green or red)
         if self.direction == 'light_vertical':
             self.state = True
         else:
             self.state = False
+
+    def __get_light_direction(self):
+        """Get direction from traffic light."""
+        dir = None
+        # Checks type of traffic light
+        if self.direction == "light_vertical":
+            right = self.model.grid.get_cell_list_contents((
+                self.pos[0]+1, self.pos[1]))
+            left = self.model.grid.get_cell_list_contents((
+                self.pos[0]-1, self.pos[1]))
+            # Get next directions from current cell
+            if right[0].direction == "intersection":
+                dir = 'right'
+            elif left[0].direction == "intersection":
+                dir = 'left'
+        elif self.direction == "light_horizontal":
+            up = self.model.grid.get_cell_list_contents((
+                self.pos[0], self.pos[1]+1))
+            down = self.model.grid.get_cell_list_contents((
+                self.pos[0], self.pos[1]-1))
+            # Get next directions from current cell
+            if up[0].direction == "intersection":
+                dir = 'up'
+            elif down[0].direction == "intersection":
+                dir = 'down'
+        return dir
+
+    def __count_cars(self, next):
+        cell = self.pos
+        while True:
+            if self.model.grid.out_of_bounds(cell):
+                return
+            content = self.model.grid.get_cell_list_contents(cell)
+            cars = 0
+            for a in content:
+                if cell != self.pos:
+                    if a.type in ['building', 'parking', 'light']:
+                        return
+                    elif a.type == 'car':
+                        cars += 1
+                else:
+                    if a.type in ['building', 'parking']:
+                        return
+                    elif a.type == 'car':
+                        cars += 1
+            self.num_cars += cars
+            cell = (cell[0] + next[0], cell[1] + next[1])
+
+    def __get_cars_in_line(self, direction):
+        if direction == 'right':
+            self.__count_cars((1, 0))
+        elif direction == 'left':
+            self.__count_cars((-1, 0))
+        elif direction == 'up':
+            self.__count_cars((0, 1))
+        elif direction == 'down':
+            self.__count_cars((0, -1))
 
     def step(self):
         # TODO (Change traffic light state)
@@ -153,10 +212,12 @@ class Traffic_Light(Agent):
             self.state = not self.state
 
     def step2(self):
-        pass
+        direction = self.__get_light_direction()
+        self.__get_cars_in_line(direction)
 
     def step3(self):
-        pass
+        print("Position: ", self.pos, " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
+        self.num_cars = 0
 
 
 # Destination agent (Doesn't have a scheduler)
