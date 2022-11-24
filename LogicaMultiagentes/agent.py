@@ -129,6 +129,8 @@ class Car(Agent):
                     if self.model.couldnt_move[path[0]] == self.pos:
                         if self.__get_out_of_path(path[0]):
                             del self.model.couldnt_move[path[0]]
+                else:
+                    print(self.unique_id, "Ando formado")
         """Third step in schedule."""
         self.cant_move = False
 
@@ -216,7 +218,8 @@ class Traffic_Light(Agent):
         self.__get_cars_in_line(direction)
 
     def step3(self):
-        print("Position: ", self.pos, " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
+        # print("Position: ", self.pos, 
+        # " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
         self.num_cars = 0
 
 
