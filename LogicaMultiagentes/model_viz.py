@@ -27,6 +27,7 @@ def agent_portrayal(agent):
             portrayal["Color"] = "red"
     elif agent.type == 'parking':
         portrayal["Color"] = "blue"
+        portrayal["text"] = agent.unique_id
     elif agent.type == 'building':
         portrayal["Color"] = "grey"
     return portrayal
@@ -39,7 +40,7 @@ with open('LogicaMultiagentes/map.txt') as map_file:
     height = len(lines)
 
 initial_cars = 10
-cars_every = 8
+cars_every = 2
 
 # Run model
 grid = CanvasGrid(agent_portrayal, width, height, 750, 750)
