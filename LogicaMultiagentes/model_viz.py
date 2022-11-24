@@ -39,8 +39,8 @@ with open('LogicaMultiagentes/map.txt') as map_file:
     width = len(lines[0])-1
     height = len(lines)
 
-initial_cars = 10
-cars_every = 2
+initial_cars = 9
+cars_every = 10
 
 # Run model
 grid = CanvasGrid(agent_portrayal, width, height, 750, 750)
