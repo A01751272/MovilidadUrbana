@@ -64,26 +64,36 @@ class CityModel(Model):
             self.add_car()
 
         lights_pairs = {}
-        count = 0
+        cuadrant = False
+        count, num_cuadrant = 0, 0
         while count < len(lights_positions):
             if count >= len(lights_positions) - 4 and \
                     count <= len(lights_positions) - 3:
-                lights_pairs[lights_positions[count].pos] = \
-                    lights_positions[count + 2].pos
-                lights_pairs[lights_positions[count + 2].pos] = \
-                    lights_positions[count].pos
+                print("Count Diff: ", count)
+                lights_pairs[lights_positions[count].pos] = [count,
+                                                             num_cuadrant]
+                lights_pairs[lights_positions[count + 2].pos] = [count,
+                                                                 num_cuadrant]
                 count += 1
             elif count < len(lights_positions) - 3:
-                lights_pairs[lights_positions[count].pos] = \
-                    lights_positions[count + 1].pos
-                lights_pairs[lights_positions[count + 1].pos] = \
-                    lights_positions[count].pos
+                print("Count: ", count)
+                lights_pairs[lights_positions[count].pos] = [count,
+                                                             num_cuadrant]
+                lights_pairs[lights_positions[count + 1].pos] = [count,
+                                                                 num_cuadrant]
                 count += 2
             else:
+                print("Count Dead: ", count)
                 count += 4
+            if not cuadrant:
+                cuadrant = not cuadrant
+            else:
+                cuadrant = not cuadrant
+                num_cuadrant += 1
 
         for a in lights_positions:
-            a.pair = lights_pairs[a.pos]
+            a.pair = lights_pairs[a.pos][0]
+            a.quadrant = lights_pairs[a.pos][-1]
             self.schedule.add(a)
 
         # TEST

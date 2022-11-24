@@ -142,6 +142,7 @@ class Traffic_Light(Agent):
         self.direction = direction
         self.num_cars = 0
         self.pair = None
+        self.quadrant = None
         # TODO (Decide if it is green or red)
         if self.direction == 'light_vertical':
             self.state = True
@@ -215,7 +216,7 @@ class Traffic_Light(Agent):
         self.__get_cars_in_line(direction)
 
     def step3(self):
-        print("My pair is: ", self.pair)
+        print("Position: ", self.pos, " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
         self.num_cars = 0
 
 
