@@ -367,6 +367,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1601413155}
+  - component: {fileID: 1601413156}
   m_Layer: 0
   m_Name: AgentController
   m_TagString: Untagged
@@ -389,3 +390,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1601413156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1601413154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceab453ac10e1184da8c01f6a483f27f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carro: {fileID: 983993023411638495, guid: a618e21b4f749e54e928ad7afb37bb81, type: 3}
+  semaforo: {fileID: 1241470369339994643, guid: 8baa1496bd000e547a214299e19702bd, type: 3}
+  InitialCars: 5
+  CarsEvery: 10
+  MaxSteps: 10
+  timeToUpdate: 1
