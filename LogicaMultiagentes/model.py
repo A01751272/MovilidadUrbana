@@ -131,15 +131,47 @@ class CityModel(Model):
                     return False
         return True
 
+    def add_car_random(self):
+        edge_positions = [(0, 0), (0, 1),
+                          (0, self.height-1), (0, self.height-2),
+                          (self.width - 1, self.height - 1),
+                          (self.width - 1, self.height - 2),
+                          (self.width - 1, 0), (self.width - 1, 1)]
+        tries = 0
+        """Adds car to grid and schedule."""
+        destination = random.choice(self.parking_coords)
+        agent = Car(f"c{self.unique_id}", self, destination)
+        allowed = False
+        while not allowed and tries < 10:
+            tries += 1
+            start = random.choice(edge_positions)
+
+            # If start parking is different from destination
+            astar = Astar(self, start, destination)
+            path = astar.get_path()
+            # If there is a path
+            if path:
+                if not self.__car_in_cell(path[0]) and \
+                        not self.__car_in_cell(start):
+                    allowed = True
+
+            if allowed:
+                # Adds agent to grid and schedule
+                self.grid.place_agent(agent, start)
+                self.schedule.add(agent)
+                self.unique_id += 1
+
     # Adds a agent car to grid and schedule
     def add_car(self):
+        tries = 0
         """Adds car to grid and schedule."""
         destination = random.choice(self.parking_coords)
         agent = Car(f"c{self.unique_id}", self, destination)
         allowed = False
 
         # While it isn't allowed to be placed in start parking
-        while not allowed:
+        while not allowed and tries < 10:
+            tries += 1
             start = random.choice(self.parking_coords)
 
             # If start parking is different from destination
@@ -152,17 +184,20 @@ class CityModel(Model):
                             not self.__car_in_cell(start) and \
                             self.__check_previous_cell(path, start):
                         allowed = True
-
-        # Adds agent to grid and schedule
-        self.grid.place_agent(agent, start)
-        self.schedule.add(agent)
-        self.unique_id += 1
+        if allowed:
+            # Adds agent to grid and schedule
+            self.grid.place_agent(agent, start)
+            self.schedule.add(agent)
+            self.unique_id += 1
+        else:
+            self.add_car_random()
 
     def step(self):
         '''Advance the model by one step.'''
         # Adds car every 10 seconds
         if self.num_steps % self.add_car_every == 0:
-            self.add_car()
+            for _ in range(2):
+                self.add_car()
         self.num_steps += 1
         self.reserved_cells = {}
         self.couldnt_move = {}
