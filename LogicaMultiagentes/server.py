@@ -37,7 +37,8 @@ def getCars():
 
     if request.method == 'GET':
         carPositions = [{"id": str(obj.unique_id),
-                         "x": x, "y": 0, "z": z}
+                         "x": x, "y": 0, "z": z,
+                         "reached_destination": obj.reached_destination}
                         for (a, x, z) in cityModel.grid.coord_iter()
                         for obj in a if isinstance(obj, Car)]
         return jsonify({'positions': carPositions})
