@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2412528632831811625, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
       propertyPath: m_Name
-      value: RoadTile
+      value: RoadCross
       objectReference: {fileID: 0}
     - target: {fileID: 3363044891479876058, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -18,6 +18,14 @@ PrefabInstance:
     - target: {fileID: 4766547545383841586, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4766547545383841586, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4766547545383841586, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4766547545383841586, guid: 62daf1376e80b2e42a2805f2ed82b45b, type: 3}
       propertyPath: m_LocalPosition.x
