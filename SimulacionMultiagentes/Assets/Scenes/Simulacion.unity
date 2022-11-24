@@ -228,7 +228,7 @@ GameObject:
   - component: {fileID: 1540231834}
   - component: {fileID: 1540231833}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: City
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -404,7 +404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   carro: {fileID: 983993023411638495, guid: a618e21b4f749e54e928ad7afb37bb81, type: 3}
   semaforo: {fileID: 1241470369339994643, guid: 8baa1496bd000e547a214299e19702bd, type: 3}
-  InitialCars: 5
-  CarsEvery: 10
+  InitialCars: 10
+  CarsEvery: 2
   MaxSteps: 10
-  timeToUpdate: 1
+  timeToUpdate: 0.5

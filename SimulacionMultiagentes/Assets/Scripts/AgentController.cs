@@ -10,12 +10,14 @@ public class CarData
 {
     public string id;
     public float x, y, z;
+    public bool reached_destination;
 
-    public CarData(string id, float x, float y, float z){
+    public CarData(string id, float x, float y, float z, bool reached_destination){
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.reached_destination = reached_destination;
     }
 }
 
@@ -70,8 +72,7 @@ public class AgentController : MonoBehaviour
 
     Dictionary<string, bool> existentes;
 
-    bool carUpdated = false, carStarted = false;
-    bool tlightStarted = false;
+    bool carUpdated = false, tlightStarted = false;
 
     public GameObject carro, semaforo;
      public int InitialCars, CarsEvery, MaxSteps;
@@ -85,6 +86,8 @@ public class AgentController : MonoBehaviour
 
         prevPositions = new Dictionary<string, Vector3>();
         currPositions = new Dictionary<string, Vector3>();
+
+        existentes = new Dictionary<string, bool>();
 
         cars = new Dictionary<string, GameObject>();
         lights = new Dictionary<string, GameObject>();
@@ -117,7 +120,7 @@ public class AgentController : MonoBehaviour
             Debug.Log("Configuration upload complete!");
             Debug.Log("Getting Agents positions");
             StartCoroutine(GetCarsData());
-            //StartCoroutine(GetBoxesData());
+            StartCoroutine(GetLightsData());
         }
         yield return 0;
     }
@@ -142,19 +145,58 @@ IEnumerator GetCarsData()
                 {
                     prevPositions[car.id] = newAgentPosition;
                     cars[car.id] = Instantiate(carro, newAgentPosition, carro.transform.rotation);
+                    cars[car.id].name = car.id;
                     existentes[car.id] = true;
                 }
                 // Si el carro ya existe, modificar su comportamiento y apariencia
                 else
                 {
-                    Vector3 currentPosition = new Vector3();
-                    if (currPositions.TryGetValue(car.id, out currentPosition))
-                        prevPositions[car.id] = currentPosition;
-                    currPositions[car.id] = newAgentPosition;
+                    if (car.reached_destination){
+                        Destroy(cars[car.id], timeToUpdate);
+                        cars.Remove(car.id);
+                        existentes.Remove(car.id);
+                        currPositions.Remove(car.id);
+                        prevPositions.Remove(car.id);
+                    } else {
+                        Vector3 currentPosition = new Vector3();
+                        if (currPositions.TryGetValue(car.id, out currentPosition))
+                            prevPositions[car.id] = currentPosition;
+                        currPositions[car.id] = newAgentPosition;
+                    }
                 }
             }
             carUpdated = true;
-            if (!carStarted) carStarted = true;
+        }
+    }
+
+    IEnumerator GetLightsData(){
+        UnityWebRequest www = UnityWebRequest.Get(serverUrl + getLightsEndpoint);
+        yield return www.SendWebRequest();
+        if (www.result != UnityWebRequest.Result.Success)
+            Debug.Log(www.error);
+        else{
+            tlightsData = JsonUtility.FromJson<TLightsData>(www.downloadHandler.text);
+
+            foreach(TLightData light in tlightsData.positions)
+            {
+                // Instanciar semaforos
+                if (!tlightStarted)
+                {
+                    Vector3 lightPosition = new Vector3(light.x, light.y, light.z);
+                    lights[light.id] = Instantiate(semaforo, lightPosition, Quaternion.identity);
+                    lights[light.id].name = light.id;
+                }
+                // Si el semaforo ya existe, modificar su estado
+                else
+                {
+                    if(light.state){
+                        lights[light.id].GetComponent<Light>().color = Color.green;
+                    } else {
+                        lights[light.id].GetComponent<Light>().color = Color.red;
+                    }
+                }
+            }
+            if (!tlightStarted) tlightStarted = true;
         }
     }
 
@@ -181,7 +223,7 @@ IEnumerator GetCarsData()
                 Vector3 direction = currentPosition - interpolated;
 
                 cars[car.Key].transform.localPosition = interpolated;
-                // Cambiar hacia dónde miran los robots dependiendo de su posición y dirección
+                // Cambiar hacia dónde miran los carros dependiendo de su posición y dirección
                 if (direction != Vector3.zero) cars[car.Key].transform.rotation = Quaternion.LookRotation(direction);
             }
         }
@@ -197,7 +239,7 @@ IEnumerator GetCarsData()
         else 
         {
             StartCoroutine(GetCarsData());
-            //StartCoroutine(GetBoxesData());
+            StartCoroutine(GetLightsData());
         }
     yield return 0;
     }
