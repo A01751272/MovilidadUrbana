@@ -73,6 +73,36 @@ class Car(Agent):
                     return True
         return False
 
+    def __can_change_to(self):
+        direction = None
+        cell = self.model.grid.get_cell_list_contents(self.pos)
+        # Check type of each cell
+        for agent in cell:
+            if agent.type == 'road':
+                direction = agent.direction
+        # Get next directions from current cell
+        if direction == "right" or direction == 'left':
+            direction = [(self.pos[0], self.pos[1]+1),
+                         (self.pos[0], self.pos[1]-1)]
+        elif direction == "up" or direction == "down":
+            direction = [(self.pos[0]+1, self.pos[1])]
+            direction = [(self.pos[0]-1, self.pos[1])]
+        elif direction == "intersection":
+            direction = None
+        return direction
+
+    def __change_lanes(self):
+        cells_move = self.__can_change_to()
+        if cells_move:
+            for neighbor in cells_move:
+                content = self.model.grid.get_cell_list_contents(neighbor)
+                if not self.__is_there_a_car(neighbor):
+                    if not self.model.grid.out_of_bounds(neighbor):
+                        self.model.grid.move_agent(self, neighbor)
+                    return
+            # print(self.unique_id, " can move to", cells)
+        return False
+
     def step(self):
         """First step in schedule."""
         # If it has just appeared, wait 1 step
@@ -132,6 +162,7 @@ class Car(Agent):
                             del self.model.couldnt_move[path[0]]
                 else:
                     print(self.unique_id, "Ando formado")
+                    # self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
         if self.pos == self.destination:
@@ -153,6 +184,7 @@ class Traffic_Light(Agent):
             self.state = True
         else:
             self.state = False
+        self.state = False
 
     def __get_light_direction(self):
         """Get direction from traffic light."""
@@ -212,16 +244,17 @@ class Traffic_Light(Agent):
             self.__count_cars((0, -1))
 
     def step(self):
+        ...
         # TODO (Change traffic light state)
-        if self.model.num_steps % 5 == 0:
-            self.state = not self.state
+        # if self.model.num_steps % 5 == 0:
+        #     self.state = not self.state
 
     def step2(self):
         direction = self.__get_light_direction()
         self.__get_cars_in_line(direction)
 
     def step3(self):
-        # print("Position: ", self.pos, 
+        # print("Position: ", self.pos,
         # " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
         self.num_cars = 0
 
