@@ -11,6 +11,7 @@ class Car(Agent):
         self.destination = destination
         self.priority = 3
         self.cant_move = True
+        self.reached_destination = False
 
     def __can_move(self, next_cell):
         """Check whether agent can move."""
@@ -133,6 +134,8 @@ class Car(Agent):
                     print(self.unique_id, "Ando formado")
         """Third step in schedule."""
         self.cant_move = False
+        if self.pos == self.destination:
+            self.reached_destination = True
 
 
 # Traffic light agent
