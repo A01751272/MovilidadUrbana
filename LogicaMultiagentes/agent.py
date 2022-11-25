@@ -258,7 +258,7 @@ class Traffic_Light(Agent):
         self.__get_cars_in_line(direction)
 
     def step3(self):
-        # print("Position: ", self.pos, 
+        # print("Position: ", self.pos,
         # " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
         self.num_cars = 0
 
