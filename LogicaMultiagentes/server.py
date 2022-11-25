@@ -50,7 +50,7 @@ def getTrafficLight():
 
     if request.method == 'GET':
         carPositions = [{"id": str(obj.unique_id),
-                         "x": x, "y": 0, "z": z,
+                         "x": x, "y": 1.5, "z": z,
                          "state": obj.state}
                         for (a, x, z) in cityModel.grid.coord_iter()
                         for obj in a if isinstance(obj, Traffic_Light)]
