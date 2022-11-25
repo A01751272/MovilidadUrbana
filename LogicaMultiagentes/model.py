@@ -77,12 +77,14 @@ class CityModel(Model):
         while count < len(self.lights_coords):
             if count >= len(self.lights_coords) - 4 and \
                     count <= len(self.lights_coords) - 3:
+                # print(num_cuadrant - 1, self.lights_coords[count].pos)
                 # print("Count Diff: ", count)
                 lights_pairs[self.lights_coords[count].pos] = \
-                        [count, num_cuadrant]
+                            [count, num_cuadrant]
                 lights_pairs[self.lights_coords[count + 2].pos] = \
                             [count, num_cuadrant]
                 count += 1
+                num_cuadrant += 1
             elif count < len(self.lights_coords) - 3:
                 # print("Count: ", count)
                 lights_pairs[self.lights_coords[count].pos] = \

@@ -106,6 +106,10 @@ class Car(Agent):
                          (self.pos[0]-1, self.pos[1]),
                          (self.pos[0], self.pos[1] - 1)]
         elif direction == "intersection":
+            """ direction = [(self.pos[0]+1, self.pos[1]),
+                         (self.pos[0]-1, self.pos[1]),
+                         (self.pos[0], self.pos[1] - 1),
+                         (self.pos[0], self.pos[1] + 1)] """
             direction = None
         return direction
 
@@ -278,8 +282,8 @@ class Traffic_Light(Agent):
         self.__get_cars_in_line(direction)
 
     def step3(self):
-        # print("Position: ", self.pos,
-        # " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
+        # print("Position: ", self.pos, " My pair is: ",
+        # self.pair, " My quadrant is: ", self.quadrant)
         self.num_cars = 0
 
 
