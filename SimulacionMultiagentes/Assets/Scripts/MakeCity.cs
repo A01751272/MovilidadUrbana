@@ -16,7 +16,7 @@ public class MakeCity : MonoBehaviour
     [SerializeField] GameObject building5Prefab;
     [SerializeField] GameObject semaphorePrefab;
     [SerializeField] GameObject parkingPrefab;
-    [SerializeField] int tileSize;
+    int tileSize = 1;
 
     //Listas con coordenadas para prefabs especificos
     public List<(int,int)> upLight = new List<(int,int)> {(0,13), (1,13), (6,2), (7,2), (13,2), (14,2)};
@@ -39,6 +39,11 @@ public class MakeCity : MonoBehaviour
     public List<(int,int)> rightBuilding = new List<(int,int)> {(5,3), (5,4), (5,5), (5,6), (12,3), (12,4),
     (12,5), (12,6), (21,3), (21,4), (21,5), (21,6), (5,14),(5,15), (12,14), (12,15), (21,14), (21,15), 
     (21,16), (21,17), (21,18), (21,19), (21,20), (21,21), (12,20), (12,21)};
+
+    public List<(int, int)> upRightCorner = new List<(int, int)> {(22,23),(23,24)};
+    public List<(int, int)> upLeftCorner = new List<(int, int)> {(0,24),(1,23)};
+    public List<(int, int)> bottomRightCorner = new List<(int, int)> {(23,0),(22,1)};
+    public List<(int, int)> bottomLeftCorner = new List<(int, int)> {(0,0),(1,1)};
     // Start is called before the first frame update
     void Start()
     {
@@ -69,7 +74,17 @@ void MakeTiles(string tiles)
                 x += 1;
             } else if (tiles[i] == 'x') {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
-                tile = Instantiate(crossPrefab, position, Quaternion.Euler(0, 90, 0));
+                if(upRightCorner.Contains((x,y))){
+                    tile = Instantiate(curvePrefab, position, Quaternion.Euler(0, 0, 0));
+                } else if (upLeftCorner.Contains((x,y))){
+                    tile = Instantiate(curvePrefab, position, Quaternion.Euler(0, 270, 0));
+                } else if (bottomRightCorner.Contains((x,y))){
+                    tile = Instantiate(curvePrefab, position, Quaternion.Euler(0, 90, 0));
+                } else if (bottomLeftCorner.Contains((x,y))){
+                    tile = Instantiate(curvePrefab, position, Quaternion.Euler(0, 180, 0));
+                } else {
+                    tile = Instantiate(crossPrefab, position, Quaternion.Euler(0, 90, 0));
+                }
                 tile.transform.parent = transform;
                 x += 1;
             } else if (tiles[i] == 'S' || tiles[i] == 's') {

@@ -258,7 +258,6 @@ MonoBehaviour:
   building5Prefab: {fileID: 5571136947196047997, guid: 15bd20bc551ff44dc9ca3e35be3193c2, type: 3}
   semaphorePrefab: {fileID: 7555692733908158056, guid: 236c9fec737b74c27ad51bee2509778a, type: 3}
   parkingPrefab: {fileID: 8293396879526225298, guid: 2d72e1ce4efc76141996eecdb819f5b8, type: 3}
-  tileSize: 1
 --- !u!4 &1540231834
 Transform:
   m_ObjectHideFlags: 0
@@ -350,14 +349,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1584747384}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 12, y: 20, z: 11}
+  m_LocalRotation: {x: 0.34212998, y: 0.015277744, z: 0.0029743058, w: 0.93952376}
+  m_LocalPosition: {x: 11, y: 9, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 40, y: 2.3, z: 1.2}
 --- !u!1 &1601413154
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,9 +401,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceab453ac10e1184da8c01f6a483f27f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  carro: {fileID: 983993023411638495, guid: a618e21b4f749e54e928ad7afb37bb81, type: 3}
+  carro1: {fileID: 3573498984491677687, guid: 93809a82fc7b94df6a928b07e51c9d5f, type: 3}
+  carro2: {fileID: 2239337849518197353, guid: 69014a3b2ab3d01449523a702adfb762, type: 3}
+  carro3: {fileID: 983993023411638495, guid: a618e21b4f749e54e928ad7afb37bb81, type: 3}
+  carro4: {fileID: 262109861651660143, guid: bca4fd3cd877a4fd2a0754531c054c11, type: 3}
+  carro5: {fileID: 8990541453859088039, guid: 240fe7c95ae2241afa7767258139762f, type: 3}
+  carro6: {fileID: 7899353069082387660, guid: fe6de7ef707cd834caddc3402391a448, type: 3}
+  carro7: {fileID: 3474875149455963295, guid: 06af8bf61f43340dbbf044cc259965b9, type: 3}
   semaforo: {fileID: 1241470369339994643, guid: 8baa1496bd000e547a214299e19702bd, type: 3}
   InitialCars: 10
   CarsEvery: 2
   MaxSteps: 10
-  timeToUpdate: 0.5
+  timeToUpdate: 0.2
