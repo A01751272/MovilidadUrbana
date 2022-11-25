@@ -14,12 +14,16 @@ class CityModel(Model):
         """Initialize model."""
         self.running = True
         self.num_steps = 0
-        map_dictionary_file = 'LogicaMultiagentes/map_dictionary.txt'
-        map_dictionary = json.load(open(map_dictionary_file))
-        self.parking_coords = []
-        map_file = 'LogicaMultiagentes/map.txt'
-        self.reserved_cells = {}
         self.add_car_every = cars_every
+        self.unique_id = 0
+        self.parking_coords = []
+        self.lights_coords = []
+        self.reserved_cells = {}
+
+        # Model variables
+        map_dictionary_file = 'LogicaMultiagentes/map_dictionary.txt'
+        map_file = 'LogicaMultiagentes/map.txt'
+        map_dictionary = json.load(open(map_dictionary_file))
 
         # Reads the map
         with open(map_file) as map_file:
@@ -28,9 +32,7 @@ class CityModel(Model):
             self.height = len(lines)
             self.grid = MultiGrid(self.width, self.height, torus=False)
             self.schedule = StagedActivation(self, ['step', 'step2', 'step3'])
-            self.unique_id = 0
 
-            lights_positions = []
             # Adds agents to grid
             # For every row
             for r, row in enumerate(lines):
@@ -46,8 +48,8 @@ class CityModel(Model):
                         agent = Traffic_Light(f"t{self.unique_id}", self,
                                               map_dictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
-                        # Add agent to scheduler
-                        lights_positions.append(agent)
+                        # Add agent to scheduler after cars
+                        self.lights_coords.append(agent)
                         # self.schedule.add(agent)
                     # Adds building agent
                     elif col == "#":
@@ -60,27 +62,33 @@ class CityModel(Model):
                         self.parking_coords.append((c, self.height - r - 1))
                     self.unique_id += 1
 
+        # Add n initial cars
         for _ in range(initial_cars):
             self.add_car()
 
+        # Create lights and asign them pairs and cuadrants
+        self.__create_lights()
+
+    def __create_lights(self):
         lights_pairs = {}
         cuadrant = False
         count, num_cuadrant = 0, 0
-        while count < len(lights_positions):
-            if count >= len(lights_positions) - 4 and \
-                    count <= len(lights_positions) - 3:
+        # Create pairs and cuadrants of traffic lights
+        while count < len(self.lights_coords):
+            if count >= len(self.lights_coords) - 4 and \
+                    count <= len(self.lights_coords) - 3:
                 # print("Count Diff: ", count)
-                lights_pairs[lights_positions[count].pos] = [count,
-                                                             num_cuadrant]
-                lights_pairs[lights_positions[count + 2].pos] = [count,
-                                                                 num_cuadrant]
+                lights_pairs[self.lights_coords[count].pos] = \
+                        [count, num_cuadrant]
+                lights_pairs[self.lights_coords[count + 2].pos] = \
+                            [count, num_cuadrant]
                 count += 1
-            elif count < len(lights_positions) - 3:
+            elif count < len(self.lights_coords) - 3:
                 # print("Count: ", count)
-                lights_pairs[lights_positions[count].pos] = [count,
-                                                             num_cuadrant]
-                lights_pairs[lights_positions[count + 1].pos] = [count,
-                                                                 num_cuadrant]
+                lights_pairs[self.lights_coords[count].pos] = \
+                        [count, num_cuadrant]
+                lights_pairs[self.lights_coords[count + 1].pos] = \
+                            [count, num_cuadrant]
                 count += 2
             else:
                 # print("Count Dead: ", count)
@@ -91,7 +99,8 @@ class CityModel(Model):
                 cuadrant = not cuadrant
                 num_cuadrant += 1
 
-        for a in lights_positions:
+        # Adds traffic lights to scheduler
+        for a in self.lights_coords:
             a.pair = lights_pairs[a.pos][0]
             a.quadrant = lights_pairs[a.pos][-1]
             self.schedule.add(a)
@@ -196,8 +205,7 @@ class CityModel(Model):
         '''Advance the model by one step.'''
         # Adds car every 10 seconds
         if self.num_steps % self.add_car_every == 0:
-            for _ in range(2):
-                self.add_car()
+            self.add_car()
         self.num_steps += 1
         self.reserved_cells = {}
         self.couldnt_move = {}

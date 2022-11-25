@@ -38,6 +38,13 @@ class Car(Agent):
                 return True
         return False
 
+    def __is_there_a_obstacle(self, next_cell):
+        content = self.model.grid.get_cell_list_contents(next_cell)
+        for agent in content:
+            if agent.type in ['car', 'building', 'parking']:
+                return True
+        return False
+
     def __give_priority(self):
         """Asigns priority to car based on position."""
         x, y = self.pos
@@ -85,8 +92,9 @@ class Car(Agent):
             direction = [(self.pos[0], self.pos[1]+1),
                          (self.pos[0], self.pos[1]-1)]
         elif direction == "up" or direction == "down":
-            direction = [(self.pos[0]+1, self.pos[1])]
-            direction = [(self.pos[0]-1, self.pos[1])]
+
+            direction = [(self.pos[0]+1, self.pos[1]),
+                         (self.pos[0]-1, self.pos[1])]
         elif direction == "intersection":
             direction = None
         return direction
@@ -95,9 +103,8 @@ class Car(Agent):
         cells_move = self.__can_change_to()
         if cells_move:
             for neighbor in cells_move:
-                content = self.model.grid.get_cell_list_contents(neighbor)
-                if not self.__is_there_a_car(neighbor):
-                    if not self.model.grid.out_of_bounds(neighbor):
+                if not self.model.grid.out_of_bounds(neighbor):
+                    if not self.__is_there_a_obstacle(neighbor):
                         self.model.grid.move_agent(self, neighbor)
                     return
             # print(self.unique_id, " can move to", cells)
@@ -184,7 +191,7 @@ class Traffic_Light(Agent):
             self.state = True
         else:
             self.state = False
-        self.state = False
+        # self.state = False
 
     def __get_light_direction(self):
         """Get direction from traffic light."""
