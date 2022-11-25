@@ -92,7 +92,6 @@ class Car(Agent):
             direction = [(self.pos[0], self.pos[1]+1),
                          (self.pos[0], self.pos[1]-1)]
         elif direction == "up" or direction == "down":
-
             direction = [(self.pos[0]+1, self.pos[1]),
                          (self.pos[0]-1, self.pos[1])]
         elif direction == "intersection":
@@ -106,7 +105,7 @@ class Car(Agent):
                 if not self.model.grid.out_of_bounds(neighbor):
                     if not self.__is_there_a_obstacle(neighbor):
                         self.model.grid.move_agent(self, neighbor)
-                    return
+                        # self.model.reserved_cells[neighbor] = True
             # print(self.unique_id, " can move to", cells)
         return False
 
@@ -167,9 +166,12 @@ class Car(Agent):
                     if self.model.couldnt_move[path[0]] == self.pos:
                         if self.__get_out_of_path(path[0]):
                             del self.model.couldnt_move[path[0]]
+                    else:
+                        print("Estoy formado", self.unique_id)
+                        self.__change_lanes()
                 else:
-                    print(self.unique_id, "Ando formado")
-                    # self.__change_lanes()
+                    print("Estoy formado", self.unique_id)
+                    self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
         if self.pos == self.destination:
