@@ -38,6 +38,13 @@ class Car(Agent):
                 return True
         return False
 
+    def __is_there_a_obstacle(self, next_cell):
+        content = self.model.grid.get_cell_list_contents(next_cell)
+        for agent in content:
+            if agent.type in ['car', 'building', 'parking']:
+                return True
+        return False
+
     def __give_priority(self):
         """Asigns priority to car based on position."""
         x, y = self.pos
@@ -71,6 +78,35 @@ class Car(Agent):
                 if neighbor != path:
                     self.model.grid.move_agent(self, neighbor)
                     return True
+        return False
+
+    def __can_change_to(self):
+        direction = None
+        cell = self.model.grid.get_cell_list_contents(self.pos)
+        # Check type of each cell
+        for agent in cell:
+            if agent.type == 'road':
+                direction = agent.direction
+        # Get next directions from current cell
+        if direction == "right" or direction == 'left':
+            direction = [(self.pos[0], self.pos[1]+1),
+                         (self.pos[0], self.pos[1]-1)]
+        elif direction == "up" or direction == "down":
+            direction = [(self.pos[0]+1, self.pos[1]),
+                         (self.pos[0]-1, self.pos[1])]
+        elif direction == "intersection":
+            direction = None
+        return direction
+
+    def __change_lanes(self):
+        cells_move = self.__can_change_to()
+        if cells_move:
+            for neighbor in cells_move:
+                if not self.model.grid.out_of_bounds(neighbor):
+                    if not self.__is_there_a_obstacle(neighbor):
+                        self.model.grid.move_agent(self, neighbor)
+                    return
+            # print(self.unique_id, " can move to", cells)
         return False
 
     def step(self):
@@ -153,6 +189,7 @@ class Traffic_Light(Agent):
             self.state = True
         else:
             self.state = False
+        # self.state = False
 
     def __get_light_direction(self):
         """Get direction from traffic light."""
