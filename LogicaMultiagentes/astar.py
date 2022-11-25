@@ -13,13 +13,13 @@ class Astar():
         self.start = start
         self.end = end
         self.create_map()
-        self.open_set = PriorityQueue()
-        self.open_set.put((0, self.count, self.start))
+        self.active = PriorityQueue()
+        self.active.put((0, self.count, self.start))
         self.came_from = {}
         self.g_score[self.start] = 0
         self.f_score[self.start] = self.__manhattan_distance(
             self.start, self.end)
-        self.open_set_hash = {self.start}
+        self.buffer = {self.start}
 
     def create_map(self):
         """Creates grid."""
@@ -116,29 +116,35 @@ class Astar():
         path.reverse()
         return path
 
-    def get_shortest_path(self):
-        while not self.open_set.empty():
-            current = self.open_set.get()[2]
-            self.open_set_hash.remove(current)
+    def __reached_destination(self, current):
+        return current == self.end
+
+    def __get_lowest_g_score(self, neighbors, current):
+        # Check smallest g score from neighbor
+        for neighbor in neighbors:
+            temp_g = self.g_score[current] + 1
+            # If g score is smaller than current + 1
+            if temp_g < self.g_score[neighbor]:
+                self.came_from[neighbor] = current
+                self.g_score[neighbor] = temp_g
+                self.f_score[neighbor] = temp_g + \
+                    self.__manhattan_distance(
+                    neighbor, self.end)
+                # If neighbor has not been visited, add to queue
+                if neighbor not in self.buffer:
+                    self.count += 1
+                    self.active.put((self.f_score[neighbor],
+                                    self.count, neighbor))
+                    self.buffer.add(neighbor)
+
+    def get_path(self):
+        while self.active:
+            current = self.active.get()[2]
+            self.buffer.remove(current)
             # If current node is already the destination
-            if current == self.end:
+            if self.__reached_destination(current):
                 return self.__get_nodes_in_path(current)
             neighbors = self.__get_neighbors(current)
-
-            # Check each neighbor's g score and look for the smallest one
-            for neighbor in neighbors:
-                temp_g = self.g_score[current] + 1
-                # If g score is smaller than current + 1
-                if temp_g < self.g_score[neighbor]:
-                    self.came_from[neighbor] = current
-                    self.g_score[neighbor] = temp_g
-                    self.f_score[neighbor] = temp_g + \
-                        self.__manhattan_distance(
-                        neighbor, self.end)
-                    # If neighbor has not been visited, add to priority queue
-                    if neighbor not in self.open_set_hash:
-                        self.count += 1
-                        self.open_set.put((self.f_score[neighbor],
-                                           self.count, neighbor))
-                        self.open_set_hash.add(neighbor)
+            self.__get_lowest_g_score(neighbors, current)
+        # No possible path
         return []

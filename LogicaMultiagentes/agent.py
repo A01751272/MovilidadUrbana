@@ -92,6 +92,7 @@ class Car(Agent):
             direction = [(self.pos[0], self.pos[1]+1),
                          (self.pos[0], self.pos[1]-1)]
         elif direction == "up" or direction == "down":
+
             direction = [(self.pos[0]+1, self.pos[1]),
                          (self.pos[0]-1, self.pos[1])]
         elif direction == "intersection":
@@ -114,7 +115,7 @@ class Car(Agent):
         # If it has just appeared, wait 1 step
         if not self.cant_move:
             astar = Astar(self.model, self.pos, self.destination)
-            path = astar.get_shortest_path()
+            path = astar.get_path()
             # Delete agent if it has reached his destination
             if not path:
                 self.model.grid.remove_agent(self)
@@ -160,7 +161,7 @@ class Car(Agent):
     def step3(self):
         if self.unique_id in self.model.couldnt_move_ids:
             astar = Astar(self.model, self.pos, self.destination)
-            path = astar.get_shortest_path()
+            path = astar.get_path()
             if path:
                 if path[0] in self.model.couldnt_move:
                     if self.model.couldnt_move[path[0]] == self.pos:
@@ -168,6 +169,7 @@ class Car(Agent):
                             del self.model.couldnt_move[path[0]]
                 else:
                     print(self.unique_id, "Ando formado")
+                    # self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
         if self.pos == self.destination:
@@ -249,9 +251,10 @@ class Traffic_Light(Agent):
             self.__count_cars((0, -1))
 
     def step(self):
+        ...
         # TODO (Change traffic light state)
-        if self.model.num_steps % 5 == 0:
-            self.state = not self.state
+        # if self.model.num_steps % 5 == 0:
+        #     self.state = not self.state
 
     def step2(self):
         direction = self.__get_light_direction()
