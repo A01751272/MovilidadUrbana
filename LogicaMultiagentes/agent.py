@@ -11,6 +11,7 @@ class Car(Agent):
         self.destination = destination
         self.priority = 3
         self.cant_move = True
+        self.has_changed_lane = False
         self.reached_destination = False
 
     def __can_move(self, next_cell):
@@ -88,14 +89,27 @@ class Car(Agent):
             if agent.type == 'road':
                 direction = agent.direction
         # Get next directions from current cell
-        if direction == "right" or direction == 'left':
+        if direction == "right":
             direction = [(self.pos[0], self.pos[1]+1),
-                         (self.pos[0], self.pos[1]-1)]
-        elif direction == "up" or direction == "down":
-
+                         (self.pos[0], self.pos[1]-1),
+                         (self.pos[0] + 1, self.pos[1])]
+        elif direction == 'left':
+            direction = [(self.pos[0], self.pos[1]+1),
+                         (self.pos[0], self.pos[1]-1),
+                         (self.pos[0] - 1, self.pos[1])]
+        elif direction == "up":
             direction = [(self.pos[0]+1, self.pos[1]),
-                         (self.pos[0]-1, self.pos[1])]
+                         (self.pos[0]-1, self.pos[1]),
+                         (self.pos[0], self.pos[1] + 1)]
+        elif direction == "down":
+            direction = [(self.pos[0]+1, self.pos[1]),
+                         (self.pos[0]-1, self.pos[1]),
+                         (self.pos[0], self.pos[1] - 1)]
         elif direction == "intersection":
+            """ direction = [(self.pos[0]+1, self.pos[1]),
+                         (self.pos[0]-1, self.pos[1]),
+                         (self.pos[0], self.pos[1] - 1),
+                         (self.pos[0], self.pos[1] + 1)] """
             direction = None
         return direction
 
@@ -104,9 +118,11 @@ class Car(Agent):
         if cells_move:
             for neighbor in cells_move:
                 if not self.model.grid.out_of_bounds(neighbor):
-                    if not self.__is_there_a_obstacle(neighbor):
+                    if not self.__is_there_a_obstacle(neighbor) and \
+                            not self.has_changed_lane:
+                        self.has_changed_lane = True
                         self.model.grid.move_agent(self, neighbor)
-                    return
+                        # self.model.reserved_cells[neighbor] = True
             # print(self.unique_id, " can move to", cells)
         return False
 
@@ -137,6 +153,7 @@ class Car(Agent):
                 # If there isn't a car in next cell
                 if not is_there_a_car:
                     next_move = next_cell
+                    self.has_changed_lane = False
                 else:
                     self.model.couldnt_move[self.pos] = next_cell
                     self.model.couldnt_move_ids[self.unique_id] = self.pos
@@ -146,6 +163,7 @@ class Car(Agent):
                     # If there isn't a car in next cell
                     if not is_there_a_car:
                         next_move = next_cell
+                        self.has_changed_lane = False
                         self.model.reserved_cells[next_cell].append(
                             max(priorities) + 1)
                     else:
@@ -167,9 +185,12 @@ class Car(Agent):
                     if self.model.couldnt_move[path[0]] == self.pos:
                         if self.__get_out_of_path(path[0]):
                             del self.model.couldnt_move[path[0]]
+                    else:
+                        print("Estoy formado", self.unique_id)
+                        self.__change_lanes()
                 else:
-                    print(self.unique_id, "Ando formado")
-                    # self.__change_lanes()
+                    print("Estoy formado", self.unique_id)
+                    self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
         if self.pos == self.destination:
@@ -253,16 +274,16 @@ class Traffic_Light(Agent):
     def step(self):
         ...
         # TODO (Change traffic light state)
-        # if self.model.num_steps % 5 == 0:
-        #     self.state = not self.state
+        if self.model.num_steps % 5 == 0:
+            self.state = not self.state
 
     def step2(self):
         direction = self.__get_light_direction()
         self.__get_cars_in_line(direction)
 
     def step3(self):
-        # print("Position: ", self.pos,
-        # " My pair is: ", self.pair, " My quadrant is: ", self.quadrant)
+        # print("Position: ", self.pos, " My pair is: ",
+        # self.pair, " My quadrant is: ", self.quadrant)
         self.num_cars = 0
 
 
