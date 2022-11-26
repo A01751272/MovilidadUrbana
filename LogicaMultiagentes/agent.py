@@ -274,7 +274,7 @@ class Traffic_Light(Agent):
     def step(self):
         ...
         # TODO (Change traffic light state)
-        if self.model.num_steps % 100 == 0:
+        if self.model.num_steps % 5 == 0:
             self.state = not self.state
 
     def step2(self):
