@@ -130,6 +130,8 @@ class Car(Agent):
     def step(self):
         """First step in schedule."""
         # If it has just appeared, wait 1 step
+        if self.pos == self.destination:
+            self.reached_destination = True
         if not self.cant_move:
             astar = Astar(self.model, self.pos, self.destination)
             path = astar.get_path()
@@ -199,8 +201,6 @@ class Car(Agent):
                     self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
-        if self.pos == self.destination:
-            self.reached_destination = True
 
 
 # Traffic light agent
@@ -288,8 +288,8 @@ class Traffic_Light(Agent):
         self.__get_cars_in_line(direction)
 
     def step3(self):
-        # print("Position: ", self.pos, " My pair is: ",
-        # self.pair, " My quadrant is: ", self.quadrant)
+        print("Position: ", self.pos, " My pair is: ",
+              self.pair, " My quadrant is: ", self.quadrant)
         self.num_cars = 0
 
 
