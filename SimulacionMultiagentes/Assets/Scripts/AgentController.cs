@@ -74,7 +74,7 @@ public class AgentController : MonoBehaviour
 
     bool carUpdated = false, tlightStarted = false;
 
-    public GameObject carro, semaforo;
+    public GameObject carro1, carro2, carro3, carro4, carro5, carro6, carro7, semaforo;
      public int InitialCars, CarsEvery, MaxSteps;
      public float timeToUpdate;
     private float timer, dt;
@@ -144,7 +144,30 @@ IEnumerator GetCarsData()
                 if (!existentes.ContainsKey(car.id))
                 {
                     prevPositions[car.id] = newAgentPosition;
-                    cars[car.id] = Instantiate(carro, newAgentPosition, carro.transform.rotation);
+                    int n = UnityEngine.Random.Range(1, 8);
+                    switch(n){
+                        case 1:
+                            cars[car.id] = Instantiate(carro1, newAgentPosition, carro1.transform.rotation);
+                            break;
+                        case 2:
+                            cars[car.id] = Instantiate(carro2, newAgentPosition, carro2.transform.rotation);
+                            break;
+                        case 3:
+                            cars[car.id] = Instantiate(carro3, newAgentPosition, carro3.transform.rotation);
+                            break;
+                        case 4:
+                            cars[car.id] = Instantiate(carro4, newAgentPosition, carro4.transform.rotation);
+                            break;
+                        case 5:
+                            cars[car.id] = Instantiate(carro5, newAgentPosition, carro5.transform.rotation);
+                            break;
+                        case 6:
+                            cars[car.id] = Instantiate(carro6, newAgentPosition, carro6.transform.rotation);
+                            break;
+                        case 7:
+                            cars[car.id] = Instantiate(carro7, newAgentPosition, carro7.transform.rotation);
+                            break;
+                    }
                     cars[car.id].name = car.id;
                     existentes[car.id] = true;
                 }
