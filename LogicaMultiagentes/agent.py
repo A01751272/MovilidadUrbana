@@ -13,6 +13,7 @@ class Car(Agent):
         self.cant_move = True
         self.has_changed_lane = False
         self.reached_destination = False
+        self.wait = False
 
     def __can_move(self, next_cell):
         """Check whether agent can move."""
@@ -134,8 +135,11 @@ class Car(Agent):
             path = astar.get_path()
             # Delete agent if it has reached his destination
             if not path:
-                self.model.grid.remove_agent(self)
-                self.model.schedule.remove(self)
+                if not self.wait:
+                    self.wait = True
+                else:
+                    self.model.grid.remove_agent(self)
+                    self.model.schedule.remove(self)
             else:
                 self.__give_priority()
                 self.__can_move(path[0])
