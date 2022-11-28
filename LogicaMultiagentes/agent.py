@@ -150,7 +150,7 @@ class Car(Agent):
         """Second step in schedule."""
         next_move = self.pos
         # If car can't move
-        if not self.cant_move:
+        if not self.cant_move and not self.wait:
             next_cell = self.model.reserved_cells[self.unique_id]
             priorities = self.model.reserved_cells[next_cell]
             is_there_a_car = self.__is_there_a_car(next_cell)
