@@ -186,10 +186,12 @@ class Car(Agent):
                         if self.__get_out_of_path(path[0]):
                             del self.model.couldnt_move[path[0]]
                     else:
-                        print("Estoy formado", self.unique_id)
+                        ...
+                        # print("Estoy formado", self.unique_id)
                         self.__change_lanes()
                 else:
-                    print("Estoy formado", self.unique_id)
+                    ...
+                    # print("Estoy formado", self.unique_id)
                     self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
