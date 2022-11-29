@@ -19,6 +19,10 @@ class CityModel(Model):
         self.parking_coords = []
         self.lights_coords = []
         self.reserved_cells = {}
+        self.cuadrant_pairs = {}
+        self.cuadrant_considered = []
+        self.assign_seconds = {}
+        self.change_value = []
 
         # Model variables
         map_dictionary_file = 'LogicaMultiagentes/map_dictionary.txt'
@@ -31,7 +35,7 @@ class CityModel(Model):
             self.width = len(lines[0])-1
             self.height = len(lines)
             self.grid = MultiGrid(self.width, self.height, torus=False)
-            self.schedule = StagedActivation(self, ['step', 'step2', 'step3'])
+            self.schedule = StagedActivation(self, ['step', 'step2', 'step3', 'step4'])
 
             # Adds agents to grid
             # For every row
