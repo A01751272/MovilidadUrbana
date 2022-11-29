@@ -288,7 +288,6 @@ class Traffic_Light(Agent):
         self.quadrant = None
         self.seconds = 0
         self.active = False
-        # TODO
         if self.direction == 'light_vertical':
             self.state = False
         else:
