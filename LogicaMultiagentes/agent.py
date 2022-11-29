@@ -131,6 +131,8 @@ class Car(Agent):
     def step(self):
         """First step in schedule."""
         # If it has just appeared, wait 1 step
+        if self.pos == self.destination:
+            self.reached_destination = True
         if not self.cant_move:
             astar = Astar(self.model, self.pos, self.destination)
             path = astar.get_path()
@@ -200,6 +202,7 @@ class Car(Agent):
                     self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
+
 
     def step4(self):
         ...
@@ -353,6 +356,9 @@ class Traffic_Light(Agent):
                 self.green = False
                 self.state = False
         print(self.unique_id, self.quadrant, self.pair, self.pos, self.num_cars, self.seconds, self.state)
+        print("Position: ", self.pos, " My pair is: ",
+              self.pair, " My quadrant is: ", self.quadrant)
+        self.num_cars = 0
 
 
 # Destination agent (Doesn't have a scheduler)
