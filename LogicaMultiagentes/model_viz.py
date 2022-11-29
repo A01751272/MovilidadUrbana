@@ -39,7 +39,7 @@ with open('LogicaMultiagentes/map.txt') as map_file:
     width = len(lines[0])-1
     height = len(lines)
 
-initial_cars = 1
+initial_cars = 10
 cars_every = 1
 
 # Run model

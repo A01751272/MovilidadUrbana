@@ -1,5 +1,6 @@
 from mesa import Agent
 from astar import Astar
+from math import floor
 
 
 # Car agent
@@ -199,8 +200,9 @@ class Car(Agent):
                     self.__change_lanes()
         """Third step in schedule."""
         self.cant_move = False
-        if self.pos == self.destination:
-            self.reached_destination = True
+
+    def step4(self):
+        ...
 
 
 # Traffic light agent
@@ -213,6 +215,8 @@ class Traffic_Light(Agent):
         self.num_cars = 0
         self.pair = None
         self.quadrant = None
+        self.seconds = 0
+        self.green = False
         # TODO (Decide if it is green or red)
         if self.direction == 'light_vertical':
             self.state = True
@@ -252,45 +256,103 @@ class Traffic_Light(Agent):
             if self.model.grid.out_of_bounds(cell):
                 return
             content = self.model.grid.get_cell_list_contents(cell)
-            cars = 0
             for a in content:
                 if cell != self.pos:
                     if a.type in ['building', 'parking', 'light']:
                         return
                     elif a.type == 'car':
-                        cars += 1
+                        self.num_cars += 1
                 else:
                     if a.type in ['building', 'parking']:
                         return
                     elif a.type == 'car':
-                        cars += 1
-            self.num_cars += cars
+                        self.num_cars += 1
             cell = (cell[0] + next[0], cell[1] + next[1])
 
     def __get_cars_in_line(self, direction):
         if direction == 'right':
-            self.__count_cars((1, 0))
-        elif direction == 'left':
             self.__count_cars((-1, 0))
+        elif direction == 'left':
+            self.__count_cars((1, 0))
         elif direction == 'up':
-            self.__count_cars((0, 1))
-        elif direction == 'down':
             self.__count_cars((0, -1))
+        elif direction == 'down':
+            self.__count_cars((0, 1))
+
+    def __add_pairs(self):
+        if self.quadrant not in self.model.cuadrant_pairs:
+            self.model.cuadrant_pairs[self.quadrant] = {}
+        if self.pair not in self.model.cuadrant_pairs[self.quadrant]:
+            self.model.cuadrant_pairs[self.quadrant][self.pair] = \
+                    self.num_cars
+        else:
+            self.model.cuadrant_pairs[self.quadrant][self.pair] += \
+                    self.num_cars
 
     def step(self):
-        ...
         # TODO (Change traffic light state)
-        if self.model.num_steps % 5 == 0:
-            self.state = not self.state
+        if self.model.num_steps % 10 == 0:
+            self.seconds = 0
+            self.green = False
+        else:
+            if self.green:
+                if self.seconds <= 0:
+                    self.model.change_value.append(self.quadrant)
+                    # self.state = not self.state
+                else:
+                    self.seconds -= 1
 
     def step2(self):
-        direction = self.__get_light_direction()
-        self.__get_cars_in_line(direction)
+        # print(self.unique_id, self.num_cars)
+        if self.model.num_steps % 10 == 0:
+            ...
+        else:
+            if self.quadrant in self.model.change_value:
+                self.state = not self.state
+                self.green = False
 
     def step3(self):
-        # print("Position: ", self.pos, " My pair is: ",
-        # self.pair, " My quadrant is: ", self.quadrant)
-        self.num_cars = 0
+        # self.model.change_value = []
+        if self.model.num_steps % 10 == 0:
+            self.model.change_value = []
+            self.state = False
+            self.num_cars = 0
+            direction = self.__get_light_direction()
+            self.__get_cars_in_line(direction)
+            self.__add_pairs()
+        # print(self.model.cuadrant_pairs[self.quadrant][self.pair])
+        # print("Position: ", self.pos, " My pair is: ", self.pair, " 
+        # My quadrant is: ", self.quadrant)
+        # self.num_cars = 0
+        # self.model.cuadrant_pairs[self.quadrant] = {}
+            self.model.cuadrant_considered = []
+            self.model.assign_seconds = {}
+
+    def step4(self):
+        if self.model.num_steps % 10 == 0:
+            quadrant = self.model.cuadrant_pairs[self.quadrant]
+            if self.quadrant not in self.model.cuadrant_considered:
+                max_value = float('-inf')
+                total = 0
+                for _, value in quadrant.items():
+                    total += value
+                    # print("Total ", total, value)
+                    if value > max_value:
+                        max_value = value
+                if total:
+                    seconds = floor((max_value/total)*10)
+                else:
+                    seconds = 5
+                self.model.assign_seconds[self.pair] = seconds
+                self.model.cuadrant_considered.append(self.quadrant)
+            if self.pair in self.model.assign_seconds:
+                self.seconds = self.model.assign_seconds[self.pair]
+                self.green = True
+                self.state = True
+            else:
+                self.green = False
+                self.state = False
+        print(self.unique_id, self.quadrant, self.pair, self.pos, self.num_cars, self.seconds, self.state)
 
 
 # Destination agent (Doesn't have a scheduler)
