@@ -142,14 +142,13 @@ class CityModel(Model):
         tries = 0
         """Adds car to grid and schedule."""
         destination = random.choice(self.parking_coords)
-        agent = Car(f"c{self.unique_id}", self, destination)
         allowed = False
         while not allowed and tries < 10:
             tries += 1
             start = random.choice(edge_positions)
 
             # If start parking is different from destination
-            astar = Astar(self, start, destination)
+            astar = Astar(self, start, destination, 3)
             path = astar.get_path()
             # If there is a path
             if path:
@@ -158,6 +157,9 @@ class CityModel(Model):
                     allowed = True
 
             if allowed:
+                astar = Astar(self, start, destination)
+                path = astar.get_path()
+                agent = Car(f"c{self.unique_id}", self, destination, path)
                 # Adds agent to grid and schedule
                 self.grid.place_agent(agent, start)
                 self.schedule.add(agent)
@@ -168,7 +170,6 @@ class CityModel(Model):
         tries = 0
         """Adds car to grid and schedule."""
         destination = random.choice(self.parking_coords)
-        agent = Car(f"c{self.unique_id}", self, destination)
         allowed = False
 
         # While it isn't allowed to be placed in start parking
@@ -178,7 +179,7 @@ class CityModel(Model):
 
             # If start parking is different from destination
             if start != destination:
-                astar = Astar(self, start, destination)
+                astar = Astar(self, start, destination, 3)
                 path = astar.get_path()
                 # If there is a path
                 if path:
@@ -188,6 +189,9 @@ class CityModel(Model):
                         allowed = True
         if allowed:
             # Adds agent to grid and schedule
+            astar = Astar(self, start, destination)
+            path = astar.get_path()
+            agent = Car(f"c{self.unique_id}", self, destination, path)
             self.grid.place_agent(agent, start)
             self.schedule.add(agent)
             self.unique_id += 1
