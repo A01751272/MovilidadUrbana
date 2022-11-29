@@ -11,20 +11,21 @@ class Car(Agent):
         self.type = 'car'
         self.destination = destination
         self.priority = 3
+        self.prev = None
         self.cant_move = True
         self.has_changed_lane = False
         self.reached_destination = False
-        self.wait = False
 
     def __can_move(self, next_cell):
         """Check whether agent can move."""
+        # Check if agent is in a red traffic light
         content = self.model.grid.get_cell_list_contents(self.pos)
-        # If it is in traffic light, check state
         for agent in content:
             if agent.type == 'light':
                 if not agent.state:
                     self.cant_move = True
                     return
+
         # Reserve the next cell
         self.model.reserved_cells[self.unique_id] = next_cell
         # Add the priorities to the next cell
@@ -42,6 +43,7 @@ class Car(Agent):
         return False
 
     def __is_there_a_obstacle(self, next_cell):
+        """Checks whether there is an obstacle in next cell."""
         content = self.model.grid.get_cell_list_contents(next_cell)
         for agent in content:
             if agent.type in ['car', 'building', 'parking']:
@@ -53,21 +55,23 @@ class Car(Agent):
         x, y = self.pos
         priority = 1
         content = self.model.grid.get_cell_list_contents(self.pos)
-        # If car is in parking
+        # Parking = 3
         for agent in content:
             if agent.type == 'parking':
                 priority = 3
                 break
         else:
-            # If car is on main road
+            # Main road = 2
             if (x < 2 or x > self.model.width - 3) or \
                (y < 2 or x > self.model.height - 3):
                 priority = 2
+            # Central road = 1
             else:
                 priority = 1
         self.priority = priority
 
     def __get_out_of_path(self, path):
+        """If both cars are stuck by each other."""
         neighbors = self.model.grid.get_neighborhood(
             self.pos,
             moore=False,
@@ -75,86 +79,125 @@ class Car(Agent):
         for neighbor in neighbors:
             content = self.model.grid.get_cell_list_contents(neighbor)
             for a in content:
-                if a.type == 'car':
+                if a.type in ['car', 'building', 'parking']:
                     break
             else:
                 if neighbor != path:
-                    self.model.grid.move_agent(self, neighbor)
-                    return True
+                    return neighbor
         return False
 
     def __can_change_to(self):
+        """Check what direction a car can change to."""
         direction = None
         cell = self.model.grid.get_cell_list_contents(self.pos)
-        # Check type of each cell
+
+        # Check type of cell
         for agent in cell:
             if agent.type == 'road':
                 direction = agent.direction
+                break
+
+        # Check which way it can't move
+        if direction == "intersection":
+            if self.prev == "right":
+                direction = "right"
+            elif self.prev == "left":
+                direction = "left"
+            elif self.prev == "up":
+                direction = "up"
+            elif self.prev == "down":
+                direction = "down"
+
         # Get next directions from current cell
         if direction == "right":
+            # Can´t move left
             direction = [(self.pos[0], self.pos[1]+1),
                          (self.pos[0], self.pos[1]-1),
                          (self.pos[0] + 1, self.pos[1])]
-        elif direction == 'left':
+        elif direction == "left":
+            # Can't move right
             direction = [(self.pos[0], self.pos[1]+1),
                          (self.pos[0], self.pos[1]-1),
                          (self.pos[0] - 1, self.pos[1])]
         elif direction == "up":
+            # Can't move down
             direction = [(self.pos[0]+1, self.pos[1]),
                          (self.pos[0]-1, self.pos[1]),
                          (self.pos[0], self.pos[1] + 1)]
         elif direction == "down":
+            # Can't move up
             direction = [(self.pos[0]+1, self.pos[1]),
                          (self.pos[0]-1, self.pos[1]),
                          (self.pos[0], self.pos[1] - 1)]
-        elif direction == "intersection":
-            """ direction = [(self.pos[0]+1, self.pos[1]),
-                         (self.pos[0]-1, self.pos[1]),
-                         (self.pos[0], self.pos[1] - 1),
-                         (self.pos[0], self.pos[1] + 1)] """
+        else:
             direction = None
         return direction
 
+    def __calculate_prev(self):
+        cell = self.model.grid.get_cell_list_contents(self.pos)
+        direction = None
+        for agent in cell:
+            if agent.type in ['road', 'light']:
+                direction = agent.direction
+                break
+        if direction:
+            if direction in ['intersection', 'light_vertical',
+                             'light_vertical']:
+                return False
+            self.prev = direction
+            return True
+        return False
+
     def __change_lanes(self):
+        """Car changes lanes if it is available."""
         cells_move = self.__can_change_to()
         if cells_move:
             for neighbor in cells_move:
                 if not self.model.grid.out_of_bounds(neighbor):
-                    if not self.__is_there_a_obstacle(neighbor) and \
-                            not self.has_changed_lane:
-                        self.has_changed_lane = True
+                    if not self.__is_there_a_obstacle(neighbor):
+                        self.has_changed_lane = True  # TODO
+                        self.__calculate_prev()
                         self.model.grid.move_agent(self, neighbor)
-                        # self.model.reserved_cells[neighbor] = True
-            # print(self.unique_id, " can move to", cells)
+                        return True
+        # Car couldn't change lanes
         return False
 
     def step(self):
+        print(self.unique_id, self.pos, self.prev)
         """First step in schedule."""
-        # If it has just appeared, wait 1 step
-        if self.pos == self.destination:
-            self.reached_destination = True
+        # If car can move
         if not self.cant_move:
+            # TODO
             astar = Astar(self.model, self.pos, self.destination)
             path = astar.get_path()
             # Delete agent if it has reached his destination
             if not path:
-                if not self.wait:
-                    self.wait = True
+                # Wait 1 second before disappearing
+                # Checks whether car has reached destination
+                if not self.reached_destination:
+                    self.reached_destination = True
+                # Disappear agent
                 else:
                     self.model.grid.remove_agent(self)
                     self.model.schedule.remove(self)
+            # If car can move
             else:
                 self.__give_priority()
                 self.__can_move(path[0])
+        # If car can't move
+        else:
+            pass
 
     def step2(self):
         """Second step in schedule."""
-        next_move = self.pos
-        # If car can't move
-        if not self.cant_move and not self.wait:
+        # If car can move
+        if not self.cant_move and not self.reached_destination:
+            next_move = self.pos
+
             next_cell = self.model.reserved_cells[self.unique_id]
             priorities = self.model.reserved_cells[next_cell]
             is_there_a_car = self.__is_there_a_car(next_cell)
+
             # If there is only one car reserving that cell
             if len(priorities) <= 1:
                 # If there isn't a car in next cell
@@ -164,10 +207,10 @@ class Car(Agent):
                 else:
                     self.model.couldnt_move[self.pos] = next_cell
                     self.model.couldnt_move_ids[self.unique_id] = self.pos
+            # If there are multiple cars in next cell
             else:
                 # If you have the highest priority
                 if self.priority >= max(priorities):
-                    # If there isn't a car in next cell
                     if not is_there_a_car:
                         next_move = next_cell
                         self.has_changed_lane = False
@@ -177,34 +220,60 @@ class Car(Agent):
                         self.model.couldnt_move[self.pos] = next_cell
                         self.model.couldnt_move_ids[self.unique_id] = self.pos
                 else:
+                    # Someone with higher priority has taken next cell
                     pass
-                    # self.model.couldnt_move[self.pos] = next_cell
-                    # self.model.couldnt_move_ids[self.unique_id] = self.pos
-
-        self.model.grid.move_agent(self, next_move)
+            self.__calculate_prev()
+            self.model.grid.move_agent(self, next_move)
+        # If car can't move
+        else:
+            pass
 
     def step3(self):
-        if self.unique_id in self.model.couldnt_move_ids:
-            astar = Astar(self.model, self.pos, self.destination)
-            path = astar.get_path()
-            if path:
-                if path[0] in self.model.couldnt_move:
-                    if self.model.couldnt_move[path[0]] == self.pos:
-                        if self.__get_out_of_path(path[0]):
-                            del self.model.couldnt_move[path[0]]
-                    else:
-                        ...
-                        # print("Estoy formado", self.unique_id)
-                        self.__change_lanes()
-                else:
-                    ...
-                    # print("Estoy formado", self.unique_id)
-                    self.__change_lanes()
         """Third step in schedule."""
-        self.cant_move = False
+        # If car couldn't move before
+        if not self.cant_move and not self.reached_destination:
+            if self.unique_id in self.model.couldnt_move_ids:
+                # TODO
+                astar = Astar(self.model, self.pos, self.destination)
+                path = astar.get_path()
+                # Someone who couldn't move is in your next cell
+                if path[0] in self.model.couldnt_move:
+                    # Next cell car is looking at this car position
+                    if self.model.couldnt_move[path[0]] == self.pos:
+                        can_exit_path = self.__get_out_of_path(path[0])
+                        if can_exit_path:
+                            del self.model.couldnt_move[self.pos]
+                            self.__calculate_prev()
+                            self.model.grid.move_agent(self, can_exit_path)
+                    # Next cell car is not looking at this car position
+                    else:
+                        if not self.has_changed_lane:
+                            self.__change_lanes()
+                        else:
+                            pass
+                # No one who couldn't move is in your next cell
+                else:
+                    is_there_a_car = self.__is_there_a_car(path[0])
+                    if not is_there_a_car:
+                        self.__calculate_prev()
+                        self.model.grid.move_agent(self, path[0])
+                    elif not self.has_changed_lane:
+                        self.__change_lanes()
+                    else:
+                        pass
+            else:
+                # If car moved last step
+                pass
+        # If car can't move
+        else:
+            pass
 
     def step4(self):
-        ...
+        """Fourth step in schedule."""
+        self.cant_move = False
+        self.model.reserved_cells = {}
+        self.model.couldnt_move = {}
+        self.model.couldnt_move_ids = {}
 
 
 # Traffic light agent
