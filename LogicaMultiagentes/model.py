@@ -85,8 +85,6 @@ class CityModel(Model):
                 elif count == 21 or count == 23:
                     a.pair = pair+3
                     a.quadrant = quad+1
-                self.schedule.add(a)
-
             else:
                 if count % 2 == 0:
                     pair += 1
@@ -94,7 +92,11 @@ class CityModel(Model):
                     quad += 1
                 a.pair = pair
                 a.quadrant = quad
-                self.schedule.add(a)
+            if a.quadrant not in self.cuadrant_pairs:
+                self.cuadrant_pairs[a.quadrant] = {}
+            if a.pair not in self.cuadrant_pairs[a.quadrant]:
+                self.cuadrant_pairs[a.quadrant][a.pair] = 0
+            self.schedule.add(a)
 
         # TEST
         self.couldnt_move = {}
@@ -196,7 +198,6 @@ class CityModel(Model):
         '''Advance the model by one step.'''
         # Adds car every n seconds
         if self.num_steps % self.add_car_every == 0:
-            for _ in range(3):
-                self.add_car()
+            self.add_car()
         self.num_steps += 1
         self.schedule.step()
