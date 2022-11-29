@@ -134,6 +134,7 @@ class Car(Agent):
         return direction
 
     def __calculate_prev(self):
+        """Assigns previous direction to car."""
         cell = self.model.grid.get_cell_list_contents(self.pos)
         direction = None
         for agent in cell:
@@ -163,7 +164,6 @@ class Car(Agent):
         return False
 
     def step(self):
-        print(self.unique_id, self.pos, self.prev)
         """First step in schedule."""
         # If car can move
         if not self.cant_move:
@@ -287,17 +287,16 @@ class Traffic_Light(Agent):
         self.pair = None
         self.quadrant = None
         self.seconds = 0
-        self.green = False
-        # TODO (Decide if it is green or red)
+        self.active = False
+        # TODO
         if self.direction == 'light_vertical':
-            self.state = True
+            self.state = False
         else:
             self.state = False
-        # self.state = False
 
     def __get_light_direction(self):
         """Get direction from traffic light."""
-        dir = None
+        direction = None
         # Checks type of traffic light
         if self.direction == "light_vertical":
             right = self.model.grid.get_cell_list_contents((
@@ -306,9 +305,9 @@ class Traffic_Light(Agent):
                 self.pos[0]-1, self.pos[1]))
             # Get next directions from current cell
             if right[0].direction == "intersection":
-                dir = 'right'
+                direction = 'right'
             elif left[0].direction == "intersection":
-                dir = 'left'
+                direction = 'left'
         elif self.direction == "light_horizontal":
             up = self.model.grid.get_cell_list_contents((
                 self.pos[0], self.pos[1]+1))
@@ -316,33 +315,40 @@ class Traffic_Light(Agent):
                 self.pos[0], self.pos[1]-1))
             # Get next directions from current cell
             if up[0].direction == "intersection":
-                dir = 'up'
+                direction = 'up'
             elif down[0].direction == "intersection":
-                dir = 'down'
-        return dir
+                direction = 'down'
+        return direction
 
     def __count_cars(self, next):
+        """Counts number of cars in line."""
         cell = self.pos
-        cont = 0
-        while cont < 6:
+        num_cells = 0
+
+        # Traverse trough n cells to find cars
+        while num_cells < 4:
+            # If cell is out of bounds
             if self.model.grid.out_of_bounds(cell):
-                return
+                return False
+
             content = self.model.grid.get_cell_list_contents(cell)
+            # Count cars until obstacle
             for a in content:
+                # Checks in the cell and the next positions
                 if cell != self.pos:
                     if a.type in ['building', 'parking', 'light']:
-                        return
+                        return False
                     elif a.type == 'car':
                         self.num_cars += 1
                 else:
-                    if a.type in ['building', 'parking']:
-                        return
-                    elif a.type == 'car':
+                    if a.type == 'car':
                         self.num_cars += 1
             cell = (cell[0] + next[0], cell[1] + next[1])
-            cont += 1
+            num_cells += 1
+        return False
 
     def __get_cars_in_line(self, direction):
+        """Determines what direction to count cars."""
         if direction == 'right':
             self.__count_cars((-1, 0))
         elif direction == 'left':
@@ -353,83 +359,92 @@ class Traffic_Light(Agent):
             self.__count_cars((0, 1))
 
     def __add_pairs(self):
-        if self.quadrant not in self.model.cuadrant_pairs:
-            self.model.cuadrant_pairs[self.quadrant] = {}
-        if self.pair not in self.model.cuadrant_pairs[self.quadrant]:
-            self.model.cuadrant_pairs[self.quadrant][self.pair] = \
-                    self.num_cars
-        else:
-            self.model.cuadrant_pairs[self.quadrant][self.pair] += \
-                    self.num_cars
+        """Add pairs to quadrant dictionary."""
+        self.model.cuadrant_pairs[self.quadrant][self.pair] += self.num_cars
 
-    def restart_variables(self):
+    def __restart_variables(self):
         self.seconds = 0
-        self.green = False
-        self.model.change_value = []
+        self.num_cars = 0
+        self.model.cuadrant_pairs[self.quadrant][self.pair] = 0
         self.model.cuadrant_considered = []
         self.model.assign_seconds = {}
-        self.state = False
-        self.num_cars = 0
 
-    def decide_color(self):
+    def __decide_color(self):
+        """Chooses what traffic lights change to green."""
         quadrant = self.model.cuadrant_pairs[self.quadrant]
+        # Determine the pair with the most number of cars
         if self.quadrant not in self.model.cuadrant_considered:
             max_value = float('-inf')
             max_key = 0
             total = 0
+            # Get highest number of cars of pair
             for key, value in quadrant.items():
                 total += value
                 if value > max_value:
                     max_value = value
                     max_key = key
+            # If a traffic light has at least 1 car
             if total:
-                seconds = floor((max_value/total)*10)
+                seconds = floor((max_value/total)*11)
             else:
-                seconds = 5
+                seconds = 6
             self.model.assign_seconds[max_key] = seconds
             self.model.cuadrant_considered.append(self.quadrant)
+        # If cuadrant has already been considered
+        # Add seconds to biggest pair
         if self.pair in self.model.assign_seconds:
             self.seconds = self.model.assign_seconds[self.pair]
-            self.green = True
             self.state = True
-        # print(self.unique_id, self.quadrant, self.pair, self.pos,
-        # self.num_cars, self.seconds, self.state)
+            self.active = True
+        else:
+            self.state = False
+            self.active = False
+
+    def __should_change_state(self):
+        """Prepares to change state after seconds passed."""
+        if self.seconds <= 0:
+            self.model.change_value.append(self.quadrant)
+            return True
+        else:
+            self.seconds -= 1
+            return False
 
     def step(self):
-        # print(self.unique_id, self.pos, self.num_cars,
-        #      self.state, self.seconds)
-        if self.model.num_steps % 10 == 0:
-            ...
+        """First step in schedule."""
+        if self.model.num_steps % 11 != 0 and self.model.num_steps != 1:
+            # Check whether is time to switch states
+            if self.active:
+                self.__should_change_state()
+        # Turn to calculate behaviours
         else:
-            if self.green:
-                if self.seconds <= 0:
-                    self.model.change_value.append(self.quadrant)
-                    # self.state = not self.state
-                else:
-                    self.seconds -= 1
+            self.__restart_variables()
 
     def step2(self):
-        # print(self.unique_id, self.num_cars)
-        if self.model.num_steps % 10 == 0:
-            self.model.cuadrant_pairs = {}
-        else:
+        """Second step in schedule."""
+        # Changes states if seconds were reached
+        if self.model.num_steps % 11 != 0 and self.model.num_steps != 1:
             if self.quadrant in self.model.change_value:
                 self.state = not self.state
-                self.green = False
+                self.active = False
+        # Turn to calculate behaviours
+        else:
+            pass
 
     def step3(self):
-        # self.model.change_value = []
-        if self.model.num_steps % 10 == 0:
-            self.restart_variables()
+        """Third step in schedule."""
+        if self.model.num_steps % 11 != 0 and self.model.num_steps != 1:
+            pass
+        else:
             direction = self.__get_light_direction()
             self.__get_cars_in_line(direction)
             self.__add_pairs()
-        else:
-            self.model.change_value = []
 
     def step4(self):
-        if self.model.num_steps % 10 == 0:
-            self.decide_color()
+        """Fourth step in schedule."""
+        if self.model.num_steps % 11 != 0 and self.model.num_steps != 1:
+            self.model.change_value = []
+        else:
+            self.__decide_color()
 
 
 # Destination agent (Doesn't have a scheduler)
