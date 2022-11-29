@@ -35,7 +35,8 @@ class CityModel(Model):
             self.width = len(lines[0])-1
             self.height = len(lines)
             self.grid = MultiGrid(self.width, self.height, torus=False)
-            self.schedule = StagedActivation(self, ['step', 'step2', 'step3', 'step4'])
+            self.schedule = StagedActivation(self, ['step', 'step2',
+                                                    'step3', 'step4'])
 
             # Adds agents to grid
             # For every row
@@ -70,46 +71,30 @@ class CityModel(Model):
         for _ in range(initial_cars):
             self.add_car()
 
-        # Create lights and asign them pairs and cuadrants
-        self.__create_lights()
-
-    def __create_lights(self):
-        lights_pairs = {}
-        cuadrant = False
-        count, num_cuadrant = 0, 0
-        # Create pairs and cuadrants of traffic lights
-        while count < len(self.lights_coords):
-            if count >= len(self.lights_coords) - 4 and \
-                    count <= len(self.lights_coords) - 3:
-                # print(num_cuadrant - 1, self.lights_coords[count].pos)
-                # print("Count Diff: ", count)
-                lights_pairs[self.lights_coords[count].pos] = \
-                            [count, num_cuadrant]
-                lights_pairs[self.lights_coords[count + 2].pos] = \
-                            [count, num_cuadrant]
-                count += 1
-                num_cuadrant += 1
-            elif count < len(self.lights_coords) - 3:
-                # print("Count: ", count)
-                lights_pairs[self.lights_coords[count].pos] = \
-                        [count, num_cuadrant]
-                lights_pairs[self.lights_coords[count + 1].pos] = \
-                            [count, num_cuadrant]
-                count += 2
-            else:
-                # print("Count Dead: ", count)
-                count += 4
-            if not cuadrant:
-                cuadrant = not cuadrant
-            else:
-                cuadrant = not cuadrant
-                num_cuadrant += 1
-
         # Adds traffic lights to scheduler
-        for a in self.lights_coords:
-            a.pair = lights_pairs[a.pos][0]
-            a.quadrant = lights_pairs[a.pos][-1]
-            self.schedule.add(a)
+        pair = 0
+        quad = 0
+        for count, a in enumerate(self.lights_coords):
+            if count >= 18:
+                if count == 18 or count == 19:
+                    a.pair = pair + 1
+                    a.quadrant = quad+1
+                elif count == 20 or count == 22:
+                    a.pair = pair+2
+                    a.quadrant = quad
+                elif count == 21 or count == 23:
+                    a.pair = pair+3
+                    a.quadrant = quad+1
+                self.schedule.add(a)
+
+            else:
+                if count % 2 == 0:
+                    pair += 1
+                if count % 4 == 0:
+                    quad += 1
+                a.pair = pair
+                a.quadrant = quad
+                self.schedule.add(a)
 
         # TEST
         self.couldnt_move = {}
