@@ -194,11 +194,9 @@ class CityModel(Model):
 
     def step(self):
         '''Advance the model by one step.'''
-        # Adds car every 10 seconds
+        # Adds car every n seconds
         if self.num_steps % self.add_car_every == 0:
-            self.add_car()
+            for _ in range(3):
+                self.add_car()
         self.num_steps += 1
-        self.reserved_cells = {}
-        self.couldnt_move = {}
-        self.couldnt_move_ids = {}
         self.schedule.step()
