@@ -203,7 +203,6 @@ class Car(Agent):
         """Third step in schedule."""
         self.cant_move = False
 
-
     def step4(self):
         ...
 
@@ -328,8 +327,8 @@ class Traffic_Light(Agent):
         # self.num_cars, self.seconds, self.state)
 
     def step(self):
-        print(self.unique_id, self.pos, self.num_cars, self.state, self.seconds)
-        # TODO (Change traffic light state)
+        # print(self.unique_id, self.pos, self.num_cars,
+        #      self.state, self.seconds)
         if self.model.num_steps % 10 == 0:
             ...
         else:
