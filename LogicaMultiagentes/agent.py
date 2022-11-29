@@ -203,7 +203,6 @@ class Car(Agent):
         """Third step in schedule."""
         self.cant_move = False
 
-
     def step4(self):
         ...
 
@@ -255,7 +254,8 @@ class Traffic_Light(Agent):
 
     def __count_cars(self, next):
         cell = self.pos
-        while True:
+        cont = 0
+        while cont < 6:
             if self.model.grid.out_of_bounds(cell):
                 return
             content = self.model.grid.get_cell_list_contents(cell)
@@ -271,6 +271,7 @@ class Traffic_Light(Agent):
                     elif a.type == 'car':
                         self.num_cars += 1
             cell = (cell[0] + next[0], cell[1] + next[1])
+            cont += 1
 
     def __get_cars_in_line(self, direction):
         if direction == 'right':
@@ -292,11 +293,44 @@ class Traffic_Light(Agent):
             self.model.cuadrant_pairs[self.quadrant][self.pair] += \
                     self.num_cars
 
+    def restart_variables(self):
+        self.seconds = 0
+        self.green = False
+        self.model.change_value = []
+        self.model.cuadrant_considered = []
+        self.model.assign_seconds = {}
+        self.state = False
+        self.num_cars = 0
+
+    def decide_color(self):
+        quadrant = self.model.cuadrant_pairs[self.quadrant]
+        if self.quadrant not in self.model.cuadrant_considered:
+            max_value = float('-inf')
+            max_key = 0
+            total = 0
+            for key, value in quadrant.items():
+                total += value
+                if value > max_value:
+                    max_value = value
+                    max_key = key
+            if total:
+                seconds = floor((max_value/total)*10)
+            else:
+                seconds = 5
+            self.model.assign_seconds[max_key] = seconds
+            self.model.cuadrant_considered.append(self.quadrant)
+        if self.pair in self.model.assign_seconds:
+            self.seconds = self.model.assign_seconds[self.pair]
+            self.green = True
+            self.state = True
+        # print(self.unique_id, self.quadrant, self.pair, self.pos,
+        # self.num_cars, self.seconds, self.state)
+
     def step(self):
-        # TODO (Change traffic light state)
+        # print(self.unique_id, self.pos, self.num_cars,
+        #      self.state, self.seconds)
         if self.model.num_steps % 10 == 0:
-            self.seconds = 0
-            self.green = False
+            ...
         else:
             if self.green:
                 if self.seconds <= 0:
@@ -308,7 +342,7 @@ class Traffic_Light(Agent):
     def step2(self):
         # print(self.unique_id, self.num_cars)
         if self.model.num_steps % 10 == 0:
-            ...
+            self.model.cuadrant_pairs = {}
         else:
             if self.quadrant in self.model.change_value:
                 self.state = not self.state
@@ -317,48 +351,16 @@ class Traffic_Light(Agent):
     def step3(self):
         # self.model.change_value = []
         if self.model.num_steps % 10 == 0:
-            self.model.change_value = []
-            self.state = False
-            self.num_cars = 0
+            self.restart_variables()
             direction = self.__get_light_direction()
             self.__get_cars_in_line(direction)
             self.__add_pairs()
-        # print(self.model.cuadrant_pairs[self.quadrant][self.pair])
-        # print("Position: ", self.pos, " My pair is: ", self.pair, " 
-        # My quadrant is: ", self.quadrant)
-        # self.num_cars = 0
-        # self.model.cuadrant_pairs[self.quadrant] = {}
-            self.model.cuadrant_considered = []
-            self.model.assign_seconds = {}
+        else:
+            self.model.change_value = []
 
     def step4(self):
         if self.model.num_steps % 10 == 0:
-            quadrant = self.model.cuadrant_pairs[self.quadrant]
-            if self.quadrant not in self.model.cuadrant_considered:
-                max_value = float('-inf')
-                total = 0
-                for _, value in quadrant.items():
-                    total += value
-                    # print("Total ", total, value)
-                    if value > max_value:
-                        max_value = value
-                if total:
-                    seconds = floor((max_value/total)*10)
-                else:
-                    seconds = 5
-                self.model.assign_seconds[self.pair] = seconds
-                self.model.cuadrant_considered.append(self.quadrant)
-            if self.pair in self.model.assign_seconds:
-                self.seconds = self.model.assign_seconds[self.pair]
-                self.green = True
-                self.state = True
-            else:
-                self.green = False
-                self.state = False
-        print(self.unique_id, self.quadrant, self.pair, self.pos, self.num_cars, self.seconds, self.state)
-        print("Position: ", self.pos, " My pair is: ",
-              self.pair, " My quadrant is: ", self.quadrant)
-        self.num_cars = 0
+            self.decide_color()
 
 
 # Destination agent (Doesn't have a scheduler)
