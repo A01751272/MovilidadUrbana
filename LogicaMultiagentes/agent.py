@@ -12,8 +12,8 @@ class Car(Agent):
         self.destination = destination
         self.priority = 3
         self.prev = None
+        self.prev_cell = None
         self.cant_move = True
-        self.has_changed_lane = False
         self.reached_destination = False
 
     def __can_move(self, next_cell):
@@ -36,10 +36,11 @@ class Car(Agent):
 
     def __is_there_a_car(self, next_cell):
         """Checks whether there is a car in next cell."""
-        content = self.model.grid.get_cell_list_contents(next_cell)
-        for agent in content:
-            if agent.type == 'car':
-                return True
+        if next_cell != self.prev_cell:
+            content = self.model.grid.get_cell_list_contents(next_cell)
+            for agent in content:
+                if agent.type == 'car':
+                    return True
         return False
 
     def __is_there_a_obstacle(self, next_cell):
@@ -77,13 +78,16 @@ class Car(Agent):
             moore=False,
             include_center=False)
         for neighbor in neighbors:
-            content = self.model.grid.get_cell_list_contents(neighbor)
-            for a in content:
-                if a.type in ['car', 'building', 'parking']:
-                    break
+            if neighbor != self.prev_cell:
+                content = self.model.grid.get_cell_list_contents(neighbor)
+                for a in content:
+                    if a.type in ['car', 'building', 'parking']:
+                        break
+                else:
+                    if neighbor != path:
+                        return neighbor
             else:
-                if neighbor != path:
-                    return neighbor
+                pass
         return False
 
     def __can_change_to(self):
@@ -154,12 +158,13 @@ class Car(Agent):
         cells_move = self.__can_change_to()
         if cells_move:
             for neighbor in cells_move:
-                if not self.model.grid.out_of_bounds(neighbor):
-                    if not self.__is_there_a_obstacle(neighbor):
-                        self.has_changed_lane = True  # TODO
-                        self.__calculate_prev()
-                        self.model.grid.move_agent(self, neighbor)
-                        return True
+                if self.prev_cell != neighbor:
+                    if not self.model.grid.out_of_bounds(neighbor):
+                        if not self.__is_there_a_obstacle(neighbor):
+                            self.__calculate_prev()
+                            self.prev_cell = self.pos
+                            self.model.grid.move_agent(self, neighbor)
+                            return True
         # Car couldn't change lanes
         return False
 
@@ -201,9 +206,9 @@ class Car(Agent):
             # If there is only one car reserving that cell
             if len(priorities) <= 1:
                 # If there isn't a car in next cell
-                if not is_there_a_car:
+                if not is_there_a_car and self.prev_cell != next_cell:
                     next_move = next_cell
-                    self.has_changed_lane = False
+                    self.prev_cell = self.pos
                 else:
                     self.model.couldnt_move[self.pos] = next_cell
                     self.model.couldnt_move_ids[self.unique_id] = self.pos
@@ -211,9 +216,9 @@ class Car(Agent):
             else:
                 # If you have the highest priority
                 if self.priority >= max(priorities):
-                    if not is_there_a_car:
+                    if not is_there_a_car and self.prev_cell != next_cell:
                         next_move = next_cell
-                        self.has_changed_lane = False
+                        self.prev_cell = self.pos
                         self.model.reserved_cells[next_cell].append(
                             max(priorities) + 1)
                     else:
@@ -244,23 +249,21 @@ class Car(Agent):
                         if can_exit_path:
                             del self.model.couldnt_move[self.pos]
                             self.__calculate_prev()
+                            self.prev_cell = self.pos
                             self.model.grid.move_agent(self, can_exit_path)
                     # Next cell car is not looking at this car position
                     else:
-                        if not self.has_changed_lane:
-                            self.__change_lanes()
-                        else:
-                            pass
+                        self.__change_lanes()
+
                 # No one who couldn't move is in your next cell
                 else:
                     is_there_a_car = self.__is_there_a_car(path[0])
                     if not is_there_a_car:
                         self.__calculate_prev()
+                        self.prev_cell = self.pos
                         self.model.grid.move_agent(self, path[0])
-                    elif not self.has_changed_lane:
-                        self.__change_lanes()
                     else:
-                        pass
+                        self.__change_lanes()
             else:
                 # If car moved last step
                 pass
