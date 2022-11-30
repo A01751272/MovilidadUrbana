@@ -216,7 +216,7 @@ IEnumerator GetCarsData()
                 if (!tlightStarted)
                 {
                     Vector3 lightPosition = new Vector3(light.x, light.y, light.z);
-                    lights[light.id] = Instantiate(semaforo, lightPosition, Quaternion.identity);
+                    lights[light.id] = Instantiate(semaforo, lightPosition, semaforo.transform.rotation);
                     lights[light.id].name = light.id;
                 }
                 // Si el semaforo ya existe, modificar su estado
