@@ -16,13 +16,18 @@ class CityModel(Model):
         self.num_steps = 0
         self.add_car_every = cars_every
         self.unique_id = 0
+        # Parking
         self.parking_coords = []
+        # Traffic light
         self.lights_coords = []
+        # Car
         self.reserved_cells = {}
         self.cuadrant_pairs = {}
         self.cuadrant_considered = []
         self.assign_seconds = {}
         self.change_value = []
+        self.couldnt_move = {}
+        self.couldnt_move_ids = {}
 
         # Model variables
         map_dictionary_file = 'LogicaMultiagentes/map_dictionary.txt'
@@ -55,7 +60,6 @@ class CityModel(Model):
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         # Add agent to scheduler after cars
                         self.lights_coords.append(agent)
-                        # self.schedule.add(agent)
                     # Adds building agent
                     elif col == "#":
                         agent = Building(f"b{self.unique_id}", self)
@@ -67,10 +71,116 @@ class CityModel(Model):
                         self.parking_coords.append((c, self.height - r - 1))
                     self.unique_id += 1
 
+        self.edge_positions = [(0, 0), (0, 1),
+                               (0, self.height-1), (0, self.height-2),
+                               (self.width - 1, self.height - 1),
+                               (self.width - 1, self.height - 2),
+                               (self.width - 1, 0), (self.width - 1, 1)]
+
         # Add n initial cars
         for _ in range(initial_cars):
             self.add_car()
 
+        # Add trafic lights
+        self.add_traffic_lights()
+
+    def __car_in_cell(self, cell):
+        """Checks if there is a car in a certain cell."""
+        content = self.grid.get_cell_list_contents(cell)
+        for a in content:
+            if a.type == 'car':
+                return True
+        return False
+
+    def __check_previous_cell(self, path, start):
+        """Check if there is a car in previous cell"""
+        previous_cell = None
+        begin = path[0]
+        next = path[1]
+
+        # Determines previous cell
+        if next[0] > begin[0]:
+            previous_cell = (begin[0]-1, begin[1])
+        elif next[0] < begin[0]:
+            previous_cell = (begin[0]+1, begin[1])
+        elif next[1] > begin[1]:
+            previous_cell = (begin[0], begin[1]-1)
+        elif next[1] < begin[1]:
+            previous_cell = (begin[0], begin[1]+1)
+        content = self.grid.get_cell_list_contents(previous_cell)
+
+        # Can't appear if there is a car in previous cell
+        for a in content:
+            if a.type == 'car':
+                if a.destination == start:
+                    return False
+        return True
+
+    def __try_to_insert_car(self, is_random):
+        """Try to insert car in any cell"""
+        destination = random.choice(self.parking_coords)
+        tries = 0
+        allowed = False
+
+        # While it isn't allowed to be placed in start parking
+        while not allowed and tries < 10:
+            if not is_random:
+                start = random.choice(self.parking_coords)
+            else:
+                start = random.choice(self.edge_positions)
+            # If start parking is different from destination
+            if start != destination:
+                astar = Astar(self, start, destination, 3)
+                path = astar.get_path()
+                # If there is a path
+                if path:
+                    if not is_random:
+                        if not self.__car_in_cell(path[0]) and \
+                                not self.__car_in_cell(start) and \
+                                self.__check_previous_cell(path, start):
+                            allowed = True
+                    else:
+                        if not self.__car_in_cell(path[0]) and \
+                                not self.__car_in_cell(start):
+                            allowed = True
+            tries += 1
+        if allowed:
+            return [start, destination]
+        return False
+
+    def __add_car_random(self):
+        """Adds car to random cell grid and schedule."""
+        allowed = self.__try_to_insert_car(True)
+
+        if allowed:
+            astar = Astar(self, allowed[0], allowed[-1])
+            path = astar.get_path()
+            agent = Car(f"c{self.unique_id}", self, allowed[-1], path)
+
+            # Adds agent to grid and schedule
+            self.grid.place_agent(agent, allowed[0])
+            self.schedule.add(agent)
+            self.unique_id += 1
+
+    # Adds a agent car to grid and schedule
+    def add_car(self):
+        """Adds car to grid and schedule."""
+        allowed = self.__try_to_insert_car(False)
+
+        # Adds agent to grid and schedule
+        if allowed:
+            astar = Astar(self, allowed[0], allowed[-1])
+            path = astar.get_path()
+            agent = Car(f"c{self.unique_id}", self, allowed[-1], path)
+
+            # Adds agent to grid and schedule
+            self.grid.place_agent(agent, allowed[0])
+            self.schedule.add(agent)
+            self.unique_id += 1
+        else:
+            self.__add_car_random()
+
+    def add_traffic_lights(self):
         # Adds traffic lights to scheduler
         pair = 0
         quad = 0
@@ -97,102 +207,7 @@ class CityModel(Model):
             if a.pair not in self.cuadrant_pairs[a.quadrant]:
                 self.cuadrant_pairs[a.quadrant][a.pair] = 0
             self.schedule.add(a)
-
-        # TEST
-        self.couldnt_move = {}
-        self.couldnt_move_ids = {}
-
-    def __car_in_cell(self, cell):
-        """Checks if there is a car in a certain cell."""
-        content = self.grid.get_cell_list_contents(cell)
-        for a in content:
-            # Can't appear if there is a car in the parking
-            if a.type == 'car':
-                return True
-        return False
-
-    def __check_previous_cell(self, path, start):
-        """Check if there is a car in previous cell"""
-        previous_cell = None
-        begin = path[0]
-        next = path[1]
-        # Checks what direction does agent move
-        if next[0] > begin[0]:
-            previous_cell = (begin[0]-1, begin[1])
-        elif next[0] < begin[0]:
-            previous_cell = (begin[0]+1, begin[1])
-        elif next[1] > begin[1]:
-            previous_cell = (begin[0], begin[1]-1)
-        elif next[1] < begin[1]:
-            previous_cell = (begin[0], begin[1]+1)
-        content = self.grid.get_cell_list_contents(previous_cell)
-        for a in content:
-            # Can't appear if there is a car in previous cell
-            if a.type == 'car':
-                if a.destination == start:
-                    return False
         return True
-
-    def add_car_random(self):
-        edge_positions = [(0, 0), (0, 1),
-                          (0, self.height-1), (0, self.height-2),
-                          (self.width - 1, self.height - 1),
-                          (self.width - 1, self.height - 2),
-                          (self.width - 1, 0), (self.width - 1, 1)]
-        tries = 0
-        """Adds car to grid and schedule."""
-        destination = random.choice(self.parking_coords)
-        agent = Car(f"c{self.unique_id}", self, destination)
-        allowed = False
-        while not allowed and tries < 10:
-            tries += 1
-            start = random.choice(edge_positions)
-
-            # If start parking is different from destination
-            astar = Astar(self, start, destination)
-            path = astar.get_path()
-            # If there is a path
-            if path:
-                if not self.__car_in_cell(path[0]) and \
-                        not self.__car_in_cell(start):
-                    allowed = True
-
-            if allowed:
-                # Adds agent to grid and schedule
-                self.grid.place_agent(agent, start)
-                self.schedule.add(agent)
-                self.unique_id += 1
-
-    # Adds a agent car to grid and schedule
-    def add_car(self):
-        tries = 0
-        """Adds car to grid and schedule."""
-        destination = random.choice(self.parking_coords)
-        agent = Car(f"c{self.unique_id}", self, destination)
-        allowed = False
-
-        # While it isn't allowed to be placed in start parking
-        while not allowed and tries < 10:
-            tries += 1
-            start = random.choice(self.parking_coords)
-
-            # If start parking is different from destination
-            if start != destination:
-                astar = Astar(self, start, destination)
-                path = astar.get_path()
-                # If there is a path
-                if path:
-                    if not self.__car_in_cell(path[0]) and \
-                            not self.__car_in_cell(start) and \
-                            self.__check_previous_cell(path, start):
-                        allowed = True
-        if allowed:
-            # Adds agent to grid and schedule
-            self.grid.place_agent(agent, start)
-            self.schedule.add(agent)
-            self.unique_id += 1
-        else:
-            self.add_car_random()
 
     def step(self):
         '''Advance the model by one step.'''

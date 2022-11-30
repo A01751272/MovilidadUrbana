@@ -4,13 +4,14 @@ from model import *
 
 # A* search algorithm
 class Astar():
-    def __init__(self, model, start, end):
+    def __init__(self, model, start, end, limit=999):
         """Initialize model."""
         self.g_score = {}
         self.f_score = {}
         self.model = model
         self.count = 0
         self.start = start
+        self.limit = limit
         self.end = end
         self.create_map()
         self.active = PriorityQueue()
@@ -138,13 +139,16 @@ class Astar():
                     self.buffer.add(neighbor)
 
     def get_path(self):
+        counter = 0
         while self.active:
             current = self.active.get()[2]
             self.buffer.remove(current)
             # If current node is already the destination
-            if self.__reached_destination(current):
+            if self.__reached_destination(current) or \
+                    counter >= self.limit:
                 return self.__get_nodes_in_path(current)
             neighbors = self.__get_neighbors(current)
             self.__get_lowest_g_score(neighbors, current)
+            counter += 1
         # No possible path
         return []
