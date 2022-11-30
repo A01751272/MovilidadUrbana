@@ -10,7 +10,7 @@ using UnityEngine;
 public class Camaras : MonoBehaviour
 {   
     // Cáamaras a usar
-    public Camera cam1, cam2, cam3;
+    public Camera cam1, cam2, cam3, cam4;
     private void Start() {
         cam2.enabled = false;
         cam3.enabled = false;
@@ -27,6 +27,9 @@ public class Camaras : MonoBehaviour
             cam3.enabled = true;
             yield return new WaitForSeconds(7);
             cam3.enabled = false;
+            cam4.enabled = true;
+            yield return new WaitForSeconds(7);
+            cam4.enabled = false;
             cam1.enabled = true;
         }
     }
