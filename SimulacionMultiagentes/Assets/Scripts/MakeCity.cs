@@ -1,9 +1,15 @@
+// TC2008B. Sistemas Multiagentes y Gráficas Computacionales
+// Código en C# para generar de forma automática la ciudad en la simulación
+// Adaptado por Pablo González, Humberto Romero, Valeria Martínez y Aleny Arévalo
+// Última modificación 29 de Noviembre 2022
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MakeCity : MonoBehaviour
 {
+    // Prefabs
     [SerializeField] TextAsset layout;
     [SerializeField] GameObject roadPrefab;
     [SerializeField] GameObject curvePrefab;
@@ -18,7 +24,7 @@ public class MakeCity : MonoBehaviour
     [SerializeField] GameObject parkingPrefab;
     int tileSize = 1;
 
-    //Listas con coordenadas para prefabs especificos
+    //Listas con coordenadas para prefabs y orientaciones especificos
     public List<(int,int)> upLight = new List<(int,int)> {(0,13), (1,13), (6,2), (7,2), (13,2), (14,2)};
     public List<(int,int)> downLight = new List<(int,int)> {(6,16), (7,16), (22, 7), (23, 7), (16,22), (17,22)};
     public List<(int,int)> leftLight = new List<(int,int)> {(5,0), (5,1), (12,0), (12,1), (21,9), (21,8)};
@@ -47,6 +53,7 @@ public class MakeCity : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Llamar función principal de creación
         MakeTiles(layout.text);
     }
 void MakeTiles(string tiles)
@@ -62,6 +69,7 @@ void MakeTiles(string tiles)
         GameObject tile;
 
         for (int i=0; i<tiles.Length; i++) {
+            // Revisa tipo de tile a colocar
             if (tiles[i] == '>' || tiles[i] == '<') {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
                 tile = Instantiate(roadPrefab, position, Quaternion.Euler(0, 90, 0));

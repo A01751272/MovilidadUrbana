@@ -1,3 +1,8 @@
+// TC2008B. Sistemas Multiagentes y Gráficas Computacionales
+// Código en C# que interactúa con el servidor en Python. Basado en el código de Sergio Ruiz.
+// Adaptado por Pablo González, Humberto Romero, Valeria Martínez y Aleny Arévalo
+// Última modificación 29 de Noviembre 2022
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// Clase del agente carro
 [Serializable] 
 public class CarData
 {
@@ -29,6 +35,7 @@ public class CarsData
     public CarsData() => this.positions = new List<CarData>();
 }
 
+// Clase del agente semáforo
 [Serializable]
 public class TLightData
 {
@@ -54,8 +61,10 @@ public class TLightsData
     public TLightsData() => this.positions = new List<TLightData>();
 }
 
+// Clase que controla el movimiento y visualización de los agentes
 public class AgentController : MonoBehaviour
 {
+    // Endpoints
     string serverUrl = "http://localhost:8585";
     string getCarsEndpoint = "/getCars";
     string getLightsEndpoint = "/getLights";
@@ -74,13 +83,15 @@ public class AgentController : MonoBehaviour
 
     bool carUpdated = false, tlightStarted = false;
 
+    //Prefabs
     public GameObject carro1, carro2, carro3, carro4, carro5, carro6, carro7, semaforo;
-     public int InitialCars, CarsEvery, MaxSteps;
+     public int InitialCars, CarsEvery;
      public float timeToUpdate;
     private float timer, dt;
     // Start is called before the first frame update
     void Start()
     {
+        // Inicializacion y envio de datos iniciales 
         carsData = new CarsData();
         tlightsData = new TLightsData();
 
@@ -95,8 +106,7 @@ public class AgentController : MonoBehaviour
         StartCoroutine(SendConfiguration());
     }
 
-    // Update is called once per frame
-    
+    // Funcion para enviar la configuración inicial    
     IEnumerator SendConfiguration()
     {
         WWWForm form = new WWWForm();
@@ -140,7 +150,7 @@ IEnumerator GetCarsData()
             {
                 Vector3 newAgentPosition = new Vector3(car.x, car.y, car.z);
 
-                // Instanciar carros
+                // Instanciar carros si es que no existen
                 if (!existentes.ContainsKey(car.id))
                 {
                     prevPositions[car.id] = newAgentPosition;
