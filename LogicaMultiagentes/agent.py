@@ -370,6 +370,7 @@ class Traffic_Light(Agent):
         self.model.cuadrant_pairs[self.quadrant][self.pair] += self.num_cars
 
     def __restart_variables(self):
+        """Restart variables to assign traffic light colors."""
         self.seconds = 0
         self.num_cars = 0
         self.model.cuadrant_pairs[self.quadrant][self.pair] = 0
