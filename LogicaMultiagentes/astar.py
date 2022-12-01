@@ -1,3 +1,15 @@
+"""
+This programs implements the A* (Astar) algorithm in the grid
+in order to calculate shortest path from cars to their destination.
+
+Aleny Sofia Arévalo Magdaleno |  A01751272
+Luis Humberto Romero Pérez | A01752789
+Valeria Martínez Silva | A01752167
+Pablo González de la Parra | A01745096
+
+Created: 25 / 11 / 2022
+"""
+
 from queue import PriorityQueue
 from model import *
 

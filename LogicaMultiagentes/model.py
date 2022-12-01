@@ -1,3 +1,15 @@
+"""
+This programs defines the model of the multi-agent system, as well
+as the scheduler used during its execution.
+
+Aleny Sofia Arévalo Magdaleno |  A01751272
+Luis Humberto Romero Pérez | A01752789
+Valeria Martínez Silva | A01752167
+Pablo González de la Parra | A01745096
+
+Created: 25 / 11 / 2022
+"""
+
 from mesa import Model
 from mesa.time import StagedActivation
 from mesa.space import MultiGrid

@@ -1,3 +1,15 @@
+"""
+This programs defines and implements the actions of MESA
+agents during the simulation.
+
+Aleny Sofia Arévalo Magdaleno |  A01751272
+Luis Humberto Romero Pérez | A01752789
+Valeria Martínez Silva | A01752167
+Pablo González de la Parra | A01745096
+
+Created: 25 / 11 / 2022
+"""
+
 from mesa import Agent
 from astar import Astar
 from math import floor
