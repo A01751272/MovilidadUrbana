@@ -4,15 +4,21 @@
 ### Modelación de sistemas multiagentes con gráficas computacionales (TC2008B - Grupo 301)
 ### Equipo: 4
 
-<br>
-
 # Integrantes del equipo:
 - Aleny Sofia Arévalo Magdaleno |  A01751272
 - Luis Humberto Romero Pérez | A01752789
 - Valeria Martínez Silva | A01752167
 - Pablo González de la Parra | A01745096
 
-<br>
+# Manejo de archivos
+## Backend (Python, MESA, Flask)
+```
+LogicaMultiagentes/
+```
+## Frontend (Unity)
+```
+SimulacionMultiagentes/
+```
 
 # Instrucciones de utilización
 Existen dos archivos principales los cuales permiten la visualización de nuestra simulación.
@@ -37,8 +43,6 @@ http://localhost:8585/
 ## Unity
 Para observar la visualización final de nuestra simulación, abrir la carpeta de ```SimulacionMultiagentes```, y entrar a la escena de ```Simulacion```. Finalmente, correr el programa.
 > Nota: Cabe recalcar que es requisito que el servidor mencionado previamente se encuentre activo al momento de comenzar la simulación en Unity.
-
-<br>
 
 # Guía de instalación, configuración y ejecución detallada
 Para poder entender con más detalle el proceso de instalación y ejecución de nuestra simulación (o solución a la situación problema) de manera local, observar los siguientes dos videos.
